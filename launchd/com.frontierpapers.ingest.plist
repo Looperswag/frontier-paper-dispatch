@@ -14,7 +14,7 @@
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>cd "/Users/ali-jason/Desktop/AI 播客总结/平台" &amp;&amp; npm run ingest:send &gt;&gt; ingest.log 2&gt;&amp;1</string>
+    <string>cd "/Users/ali-jason/前沿论文情报台" &amp;&amp; npm run ingest:send &gt;&gt; ingest.log 2&gt;&amp;1</string>
   </array>
 
   <key>StartCalendarInterval</key>
@@ -24,8 +24,8 @@
   </dict>
 
   <key>StandardOutPath</key>
-  <string>/Users/ali-jason/Desktop/AI 播客总结/平台/ingest.log</string>
+  <string>/Users/ali-jason/前沿论文情报台/ingest.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/ali-jason/Desktop/AI 播客总结/平台/ingest.log</string>
+  <string>/Users/ali-jason/前沿论文情报台/ingest.log</string>
 </dict>
 </plist>
