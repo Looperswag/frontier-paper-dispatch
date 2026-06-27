@@ -32,12 +32,21 @@ body {
 /* ===== 三栏布局：左 归档 / 中 纸张 / 右 1/3 电报机问答 ===== */
 .app {
   display: grid;
-  grid-template-columns: 280px 1fr minmax(320px, 33%);
+  grid-template-columns: 260px 1fr minmax(300px, 32%);
   height: 100vh;
   overflow: hidden;
 }
 .rail-left, .rail-right { overflow-y: auto; height: 100vh; }
-.center { overflow-y: auto; height: 100vh; padding: 36px 28px 80px; display: flex; justify-content: center; }
+.center { overflow-y: auto; height: 100vh; padding: 32px 24px 96px; display: flex; justify-content: center; }
+
+/* 窄屏自适应：先收右栏，再收左栏 */
+@media (max-width: 1180px) {
+  .app { grid-template-columns: 240px 1fr 300px; }
+}
+@media (max-width: 920px) {
+  .app { grid-template-columns: 1fr; }
+  .rail-left, .rail-right { display: none; }
+}
 
 /* ===== 左栏：归档卡片 ===== */
 .rail-left {
@@ -71,11 +80,13 @@ body {
 
 /* ===== 中栏：牛皮纸"纸张"（固定宽，便于批注几何锚定）===== */
 .sheet {
-  width: 720px; max-width: 100%;
+  width: 100%; max-width: 768px;
   background: var(--paper);
   color: var(--ink);
-  padding: 56px 64px 64px 88px; /* 左侧留装订孔的位置 */
+  padding: 52px 60px 60px 74px; /* 左侧留装订孔的位置 */
   position: relative;
+  overflow-wrap: break-word;
+  word-break: break-word;
   box-shadow:
     0 0 0 1px var(--wax),        /* 内线 */
     0 0 0 6px var(--paper),      /* 间隔 */
@@ -87,7 +98,7 @@ body {
 }
 /* 装订孔：左边距一列打孔 */
 .sheet::before {
-  content: ""; position: absolute; left: 30px; top: 40px; bottom: 40px; width: 16px;
+  content: ""; position: absolute; left: 22px; top: 40px; bottom: 40px; width: 16px;
   background-image: radial-gradient(circle, rgba(0,0,0,0.55) 0 5px, rgba(0,0,0,0.15) 5px 7px, transparent 7px);
   background-size: 16px 46px; background-repeat: repeat-y;
 }
@@ -99,7 +110,7 @@ body {
 }
 .sheet h1.headline { font-family: var(--font-typewriter); font-size: 26px; line-height: 1.25; margin: 6px 0 10px; }
 .sheet .meta { font-size: 12px; color: var(--ink-soft); border-bottom: 1px dashed var(--thread); padding-bottom: 12px; margin-bottom: 20px; }
-.sheet .meta a { color: var(--wax); }
+.sheet .meta a { color: var(--wax); word-break: break-all; }
 
 .section-label {
   font-family: var(--font-typewriter); font-size: 13px; letter-spacing: 3px;
@@ -109,7 +120,7 @@ body {
 .prose { font-size: 15px; line-height: 1.85; }
 .prose p { margin: 0 0 12px; }
 .prose strong { color: var(--ink); }
-.prose a { color: var(--wax); text-underline-offset: 2px; }
+.prose a { color: var(--wax); text-underline-offset: 2px; word-break: break-all; }
 .prose ul, .prose ol { padding-left: 22px; margin: 0 0 12px; }
 .prose li { margin: 4px 0; }
 .prose code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 2px; font-family: var(--font-typewriter); font-size: 13px; }
