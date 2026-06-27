@@ -32,8 +32,10 @@
 - [x] 导出 md（/api/export）+ word（docx 库）+ pdf（打印 CSS + window.print）
 - [x] 验证：CRUD/非法 type 400/MD 内容/Word 真 docx/页面工具栏 全部 curl 实测通过
 
-## Phase 5 — 增强
-- [ ] X 源（agent-reach）+ FB 可选
-- [ ] Voyage 嵌入 + pgvector 跨库检索
-- [ ] 画像从批注/chat 自动精炼
-- [ ] 鉴权：Supabase Auth 邮箱白名单登录，给所有写接口（/api/chat、/api/annotations）加归属校验（部署前的临时方案=Vercel Deployment Protection）
+## Phase 5 — 增强（进行中）
+- [x] 跨库检索：Postgres/JS 关键词检索（标题/摘要/概要/影响，AND 多词，中英通）+ 左栏搜索框 + /search 页（DeepSeek 无 embeddings，故先关键词，向量留待有 Voyage key）
+- [x] 鉴权（临时）：middleware Basic Auth 口令门（Vercel 免费版生产无官方保护）；正式 Supabase Auth 登录待办
+- [~] X 源：agent-reach 已装但 twitter 后端需 `pipx install twitter-cli` + 授权；x.ts 留好接入点与步骤，启用后 shell out twitter-cli
+- [ ] Voyage 嵌入 + pgvector 语义检索（需 embedding key）
+- [ ] 画像从批注/chat 自动精炼（DeepSeek 可做，待办）
+- [ ] 正式 Supabase Auth 登录 + 写接口归属校验

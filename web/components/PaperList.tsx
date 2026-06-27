@@ -6,10 +6,13 @@ export default async function PaperList() {
   const papers = await listArchive();
   return (
     <>
-      <div className="brand">
+      <Link href="/" className="brand" style={{ textDecoration: "none", color: "inherit", display: "block" }}>
         <h1>前沿论文情报台</h1>
         <div className="sub">Frontier Dispatch</div>
-      </div>
+      </Link>
+      <form className="search-box" action="/search">
+        <input name="q" placeholder="跨库检索…" aria-label="跨库检索" />
+      </form>
       <hr className="rail-sep" />
       {papers.length === 0 ? (
         <p className="tele-stub">归档为空。先在本地跑一次 <code>npm run ingest</code>。</p>

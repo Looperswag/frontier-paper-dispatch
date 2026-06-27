@@ -139,3 +139,15 @@ export async function addAnnotation(
 export async function deleteAnnotation(id: string): Promise<void> {
   await db.from("annotations").delete().eq("id", id);
 }
+
+/** 跨库检索：在所有"已收录(有摘要)"论文的 标题/摘要/概要/影响 上做 AND 关键词匹配。
+ *  当前语料规模下 JS 过滤足够；上千篇时再上 Postgres FTS 索引（ponytail）。 */
+export async function searchPapers(q: string): Promise<Paper[]> {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  const all = await listArchive(500);
+  return all.filter((p) => {
+    const hay = `${p.title} ${p.abstract} ${p.summary?.one_liner ?? ""} ${p.summary?.summary_md ?? ""} ${p.summary?.impact_md ?? ""}`.toLowerCase();
+    return terms.every((t) => hay.includes(t));
+  });
+}

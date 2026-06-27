@@ -59,6 +59,23 @@ body {
 .brand .sub { font-size: 11px; color: var(--ink-soft); letter-spacing: 2px; text-transform: uppercase; }
 .rail-sep { border: 0; border-top: 2px double var(--thread); margin: 16px 2px; }
 
+.search-box { margin-top: 14px; }
+.search-box input {
+  width: 100%; padding: 7px 10px; font-family: var(--font-serif-sc), serif; font-size: 12px;
+  background: var(--paper); border: 1px solid var(--thread); color: var(--ink);
+}
+.search-box input::placeholder { color: var(--ink-soft); }
+
+/* 检索结果项（中栏纸张内） */
+.search-hit {
+  display: block; text-decoration: none; color: inherit;
+  border-bottom: 1px dashed var(--thread); padding: 12px 2px;
+}
+.search-hit:hover { background: rgba(138, 51, 36, 0.05); }
+.search-hit .src { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); }
+.search-hit .hit-title { font-size: 15px; line-height: 1.4; margin: 3px 0; color: var(--wax); }
+.search-hit .hit-one { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+
 .card {
   display: block; text-decoration: none; color: inherit;
   background: var(--paper);
