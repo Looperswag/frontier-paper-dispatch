@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 每晚 21:45 跑采集→排名→总结→发邮件。
+<!-- 每晚 22:00 跑采集→排名→总结→推送微信（DeepSeek 耗时几分钟，推送约 22:02 到达）。
      安装：
        cp launchd/com.frontierpapers.ingest.plist ~/Library/LaunchAgents/
        launchctl load ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
@@ -19,8 +19,8 @@
 
   <key>StartCalendarInterval</key>
   <dict>
-    <key>Hour</key><integer>21</integer>
-    <key>Minute</key><integer>45</integer>
+    <key>Hour</key><integer>22</integer>
+    <key>Minute</key><integer>0</integer>
   </dict>
 
   <key>StandardOutPath</key>
