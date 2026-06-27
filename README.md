@@ -1,60 +1,169 @@
-# 前沿论文情报台
+# 🗞️ 前沿论文情报台 · Frontier Paper Dispatch
 
-多源采集（arxiv / huggingface / github / 大厂 blog；X best-effort）→ DeepSeek 依据你的画像排名 Top5、写概要与「对我的影响」→ 每晚十点推送到微信（Server酱）。复古牛皮纸阅读前台（批注 / chatbot / 导出）见 Phase 2+（`SPEC.md`）。
+> 一台**懂你**的前沿论文情报机。不是把同一份摘要群发给所有人——而是按 **你的画像** 给每天的 arXiv / HuggingFace / GitHub / 大厂官方 blog 排名、为每篇写「**对你的影响**」，沉淀进一个 **可检索、可批注、可对话** 的私人情报库，并随你的使用 **越用越懂你**。
 
-## 快速开始
+> 📡 多源采集 · 🎯 画像加权排名 · 📨 每晚十点微信推送 Top5 · 📖 复古牛皮纸阅读台 · 🔁 自进化飞轮
 
-```bash
-cd "平台"
-npm install
+![License](https://img.shields.io/badge/License-MIT-8a3324)
+![Next.js](https://img.shields.io/badge/Next.js-16-1f1f1f)
+![LLM](https://img.shields.io/badge/LLM-DeepSeek-4a6a8a)
+![DB](https://img.shields.io/badge/DB-Supabase-3ecf8e)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
 
-# 1) 零配置实时试跑：抓真实候选、去重、打印预览（不写库、不发信）
-npm run ingest:dry
+![hero](assets/hero.png)
 
-# 2) 跑单测（normalize / dedupe）
-npm test
+---
+
+## 🤔 和「AI 新闻摘要工具」有什么不同？
+
+大多数「AI 资讯 / 论文摘要」做的是：抓一批热门 → 生成通用摘要 → 群发。**前沿论文情报台** 从根上不同：
+
+| | 普通摘要 + 推送 | 🗞️ 前沿论文情报台 |
+|---|---|---|
+| **排序** | 千人一面，按热度 / 时间 | **千人千面**：DeepSeek 按你的画像打分，并为每篇写「对你的影响」 |
+| **信息留存** | 推完即逝，看过就丢 | **沉淀进云端库**：全文检索 · 原文批注 · 二次问答 · md/pdf/word 导出 |
+| **是否进化** | 静态规则，永远一个样 | **自进化飞轮**：你的批注 / 提问被反推成更准的画像，越用越懂你 |
+| **阅读体验** | 朴素列表 / 邮件 | **复古牛皮纸** 沉浸式阅读：装订孔 · 火漆印章 · 打字机字体 · 电报问询 |
+
+一句话：别人给你 **资讯**，它给你 **情报**——只与你相关、且会积累和进化的那种。✨
+
+---
+
+## 🔁 核心：越用越懂你的飞轮
+
+普通工具是一条直线（抓取 → 摘要 → 推送 → 结束）。这里是一个 **闭环**：
+
+```mermaid
+flowchart LR
+  A["📡 多源采集<br/>arXiv · HF · GitHub · 大厂 blog"] --> B["🎯 DeepSeek 按画像排名 Top5<br/>+ 写「对你的影响」"]
+  B --> C["📨 每晚十点微信推送"]
+  B --> D["🗂️ 沉淀进 Supabase 云端库"]
+  D --> E["📖 牛皮纸阅读器里<br/>划线 · 写便签 · 追问"]
+  E --> F["🧠 DeepSeek 反推精炼画像"]
+  F -.->|下次更准| B
 ```
 
-## 接入完整流水线
+你读得越多、划得越多、问得越多 → 画像越精准 → 明天的 Top5 越戳你。**这是它和「又一个摘要器」的本质区别。**
 
-1. 复制 `.env.example` 为 `.env`，填入 `DEEPSEEK_API_KEY`、`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`SERVERCHAN_SENDKEY`（微信推送）。
-2. 在 Supabase SQL Editor 执行 `supabase/migrations/0001_init.sql`。
-3. 编辑 `config/profile.md`（你的角色 / 在做的项目 / 关注方向）——排名和影响都基于它。
-4. 写库不发信：`npm run ingest`；写库并发信：`npm run ingest:send`。
-5. 装每晚 21:45 定时（改 plist 里的绝对路径后）：
+---
+
+## 🖼️ 界面一览
+
+> 设计语言：**复古电报 / 牛皮纸做旧**——分层霉斑、装订孔、双线边框、火漆红印章、打字机字体（Special Elite + Noto Serif SC）。固定宽「纸张」既是美学，也让批注坐标稳定。
+
+**🗞️ 每日电讯 · Top5 封面**
+
+![digest](assets/digest.png)
+
+**✍️ 原文批注 + 右栏二次问答**（高亮 / 便签 / 画笔 / 框选，持久化；右栏基于这篇论文追问，满上下文不做 RAG）
+
+![annotate](assets/annotate.png)
+
+**🔍 跨库检索**（在你收录的全部论文里搜，中英通）
+
+![search](assets/search.png)
+
+---
+
+## 🏗️ 架构：本地采集 + 云端阅读（混合部署）
+
+```mermaid
+flowchart TB
+  subgraph LOCAL["💻 本地 Mac · launchd 夜跑"]
+    I["ingest.ts<br/>采集 → 去重 → 排名 → 总结"]
+    R["refine-profile.ts<br/>画像精炼"]
+  end
+  subgraph CLOUD["☁️ 云端 Vercel"]
+    V["Next.js 阅读台<br/>批注 · chat · 导出 · 检索"]
+  end
+  DB[("🗄️ Supabase · Postgres<br/>items / summaries / digests<br/>annotations / chats")]
+  I -->|写| DB
+  R -->|读批注 chat → 写建议| DB
+  V -->|读 / 写| DB
+  I --> WX["📱 微信 Server酱"]
+```
+
+- **本地** 跑采集 + 排名 + 总结 + 推送：零托管成本、用你自己的 key、数据你掌控。
+- **云端** 只放阅读台，随处可看；两边共享同一个 Supabase。
+
+---
+
+## 🚀 三分钟上手
+
+### ① 零配置先尝个鲜（不需要任何 key）
+
+```bash
+git clone https://github.com/Looperswag/frontier-paper-dispatch.git
+cd frontier-paper-dispatch
+npm install
+npm run ingest:dry      # 实时抓真实论文、去重、打印 Top 预览——不写库、不发信
+```
+
+> 🎁 这一步立刻看到今天 arXiv / HF / GitHub / 大厂 blog 的真实候选。`npm test` 跑去重单测。
+
+### ② 接上完整流水线（采集 → 排名 → 微信推送）
+
+1. `cp .env.example .env`，填 key：
+   - `DEEPSEEK_API_KEY` — [platform.deepseek.com](https://platform.deepseek.com)
+   - `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — [supabase.com](https://supabase.com) 建项目
+   - `SERVERCHAN_SENDKEY` — [sct.ftqq.com](https://sct.ftqq.com) 微信扫码（可选；不填则只写库不推送）
+2. Supabase SQL Editor 执行 `supabase/migrations/0001_init.sql` 建表。
+3. `cp config/profile.example.md config/profile.md`，按你的角色 / 项目 / 关注方向改——**排名和「对你的影响」全靠它**。
+4. `npm run ingest`（写库不发信）/ `npm run ingest:send`（写库并推微信）。
+5. 装定时（每晚 22:00 推送 + 每周日 23:00 画像精炼）：
    ```bash
-   cp launchd/com.frontierpapers.ingest.plist ~/Library/LaunchAgents/
-   launchctl load ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
+   bash scripts/install-cron.sh
    ```
 
-## Web 前台（Phase 2，复古牛皮纸阅读 UI）
+> ⚠️ **macOS 提醒**：项目别放 `~/Desktop`、`~/Documents`、`~/Downloads`——这些是隐私保护（TCC）目录，launchd 读不到文件、定时任务必失败。放 `~/frontier-paper-dispatch` 这类目录即可（`install-cron.sh` 会帮你拦截这种情况）。
+
+### ③ 部署云端阅读台（可选）
+
 ```bash
-cd web
-npm install
-# web/.env.local 需含 SUPABASE_URL 与 SUPABASE_SERVICE_ROLE_KEY（可从 ../.env 复制）
-npm run dev          # 打开 http://localhost:3000
-```
-三栏布局：左=归档列表，中=牛皮纸纸张阅读器（首页是每日电讯 Top5 封面，点进是单篇概要+影响），右 1/3=电报问询（Phase 3 接入）。
-要随处访问：`vercel deploy`，并在 Vercel 项目里配 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`DEEPSEEK_API_KEY` 三个环境变量。
-
-> ⚠️ **部署前必读（鉴权）**：本应用是**单用户设计、目前无内置登录**，所有写接口（`/api/chat` 调 DeepSeek 花钱、`/api/annotations` 增删批注）都未鉴权。公开部署 = 任何人拿到 URL 都能看你的简报、改/删你的批注、烧你的 DeepSeek 额度。部署到 Vercel 时**务必开启 Deployment Protection**（Settings → Deployment Protection → Vercel Authentication 或 Password），平台层一键挡住**全站含所有 API**，零代码。完整的应用内登录（Supabase Auth 邮箱白名单，给所有写操作加归属校验）排在 Phase 5。本地 `npm run dev` 不对外暴露，无此风险。
-
-## 结构
-```
-config/    sources.ts（源+权重）  profile.md（你的画像）
-lib/       types / normalize(+test) / http / claude / supabase
-scripts/   ingest.ts（入口）  rank / summarize / digest  fetchers/*
-supabase/  migrations/0001_init.sql
-launchd/   夜跑 plist
+cd web && npm install && npm run dev      # 本地 http://localhost:3000
 ```
 
-## 画像自动精炼（越用越准）
-用你在阅读器里的**批注 + 提问**反推兴趣，让 DeepSeek 精炼 `config/profile.md`：
+随处访问：`cd web && bash deploy.sh`（一键 Vercel：link + 写 env + 部署）。
+
+> 🔐 **公开部署必读**：本应用 **单用户设计、无内置登录**，所有写接口（chat 调 DeepSeek 花钱、批注增删）都未鉴权。公开部署务必二选一：开 **Vercel Deployment Protection**（需 Pro 套餐），或用仓库自带的 **middleware Basic Auth 口令门**——在 Vercel 设环境变量 `APP_PASSWORD` 即全站含所有 API 需口令（免费、零代码）。正式登录（Supabase Auth）见 Roadmap。
+
+---
+
+## 🔁 自进化：让它越来越懂你
+
 ```bash
-npm run refine         # 提议：生成 config/profile.suggested.md（不动 profile.md），自己审阅
-npm run refine:apply   # 满意后套用（原 profile.md 备份为 profile.md.bak）
+npm run refine         # 读你的批注 + 提问 → DeepSeek 反推 → 生成 config/profile.suggested.md（不覆盖原文件）
+npm run refine:apply   # 满意后套用（原 profile.md 自动备份为 .bak）
 ```
-保留你写明的角色/项目，只优化关注方向并追加「## 观察到的偏好（自动）」。信号太少会提示先多用几天。
 
-## 配置源
-改 `config/sources.ts`：arxiv 分类、github 主题、blog RSS 列表、每源上限、回看天数。失效的 blog feed 会被静默跳过。
+保留你写明的角色 / 项目，只优化关注方向并追加一节「## 观察到的偏好（自动）」。`install-cron.sh` 装的周任务会每周自动出一份建议，你有空瞄一眼采纳即可。
+
+---
+
+## 🧩 技术栈
+
+| 层 | 选型 |
+|---|---|
+| 采集 / 排名 / 总结 | TypeScript + tsx；**DeepSeek**（OpenAI 兼容）`deepseek-chat` |
+| 数据 | **Supabase**（Postgres）：items / summaries / digests / annotations / chats |
+| 前端 | **Next.js 16**（App Router）+ 复古牛皮纸 CSS + SVG 批注层；marked + sanitize-html |
+| 推送 / 部署 / 定时 | Server酱（微信） / Vercel / macOS launchd |
+| 导出 | md · docx（`docx`）· pdf（打印 CSS） |
+
+源数据可在 `config/sources.ts` 调（arXiv 分类、GitHub 主题、blog RSS 列表、每源上限、回看天数）。
+
+---
+
+## 🗺️ Roadmap
+
+**已落地** Phase 1–5：多源采集 + 画像排名 + 微信推送 · 牛皮纸阅读台 · 右栏 chatbot · 批注 + 导出 · 跨库检索 + 画像自动精炼。
+
+**待办**：X / Twitter 源（接 `twitter-cli`）· 向量语义检索（需 embedding key，已留 `embeddings` 表）· 正式 Supabase Auth 登录 + 写接口归属校验。
+
+详见 [`tasks/plan.md`](tasks/plan.md) 与 [`SPEC.md`](SPEC.md)。
+
+---
+
+## 📄 License
+
+[MIT](LICENSE) © 2026 Looperswag

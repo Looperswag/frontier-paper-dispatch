@@ -6,3 +6,4 @@ node_modules/
 dist/
 config/profile.suggested.md
 config/profile.md.bak
+config/profile.md

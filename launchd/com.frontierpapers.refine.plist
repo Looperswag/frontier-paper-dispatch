@@ -14,7 +14,7 @@
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>cd "/Users/ali-jason/前沿论文情报台" &amp;&amp; npm run refine &gt;&gt; refine.log 2&gt;&amp;1</string>
+    <string>cd "__PROJECT_DIR__" &amp;&amp; npm run refine &gt;&gt; refine.log 2&gt;&amp;1</string>
   </array>
 
   <key>StartCalendarInterval</key>
@@ -25,8 +25,8 @@
   </dict>
 
   <key>StandardOutPath</key>
-  <string>/Users/ali-jason/前沿论文情报台/refine.log</string>
+  <string>__PROJECT_DIR__/refine.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/ali-jason/前沿论文情报台/refine.log</string>
+  <string>__PROJECT_DIR__/refine.log</string>
 </dict>
 </plist>
