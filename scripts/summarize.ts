@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { MODELS, completeJSON } from "../lib/claude.ts";
+import { MODELS, completeJSON } from "../lib/llm.ts";
 import type { RankedItem, SummarizedItem } from "../lib/types.ts";
 
 const PROFILE_PATH = new URL("../config/profile.md", import.meta.url);

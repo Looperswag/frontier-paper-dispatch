@@ -1,10 +1,10 @@
 import { readFile } from "node:fs/promises";
-import { MODELS, completeJSON } from "../lib/claude.ts";
+import { MODELS, completeJSON } from "../lib/llm.ts";
 import type { NormalizedItem, RankedItem } from "../lib/types.ts";
 
 const PROFILE_PATH = new URL("../config/profile.md", import.meta.url);
 
-/** 用 Claude 依据画像对候选打分，返回 Top n（带分数与理由）。 */
+/** 用 DeepSeek 依据画像对候选打分，返回 Top n（带分数与理由）。 */
 export async function rankTop(items: NormalizedItem[], n = 5): Promise<RankedItem[]> {
   const profile = await readFile(PROFILE_PATH, "utf8");
   const candidates = items.map((it, idx) => ({
@@ -21,17 +21,17 @@ export async function rankTop(items: NormalizedItem[], n = 5): Promise<RankedIte
   const user =
     `# 我的画像\n${profile}\n\n` +
     `# 候选项（共 ${candidates.length}）\n${JSON.stringify(candidates)}\n\n` +
-    `# 输出\n返回 JSON 数组，每项 {"idx": number, "score": number, "rationale": "一句话中文理由"}，` +
-    `按 score 降序，只保留最值得我看的前 ${n} 项。`;
+    `# 输出\n返回 JSON 对象 {"ranked": [ {"idx": number, "score": number, "rationale": "一句话中文理由"}, ... ]}，` +
+    `ranked 按 score 降序，只保留最值得我看的前 ${n} 项。`;
 
-  const ranked = await completeJSON<{ idx: number; score: number; rationale: string }[]>({
+  const out = await completeJSON<{ ranked: { idx: number; score: number; rationale: string }[] }>({
     model: MODELS.rank,
     system,
     user,
     maxTokens: 2000,
   });
 
-  return ranked
+  return (out.ranked ?? [])
     .filter((r) => items[r.idx])
     .sort((a, b) => b.score - a.score)
     .slice(0, n)

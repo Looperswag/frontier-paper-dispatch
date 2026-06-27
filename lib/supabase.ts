@@ -52,7 +52,7 @@ export async function saveSummaries(
     one_liner: i.oneLiner,
     score: i.score,
     rank: i.rank,
-    model: "claude",
+    model: "deepseek",
   }));
   const { error } = await db.from("summaries").insert(rows);
   if (error) throw error;

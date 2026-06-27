@@ -46,5 +46,8 @@ export async function fetchArxiv(): Promise<NormalizedItem[]> {
     console.warn(`[arxiv] 跳过 ${ARXIV_CATEGORIES[i]}：${(r.reason as Error)?.message ?? r.reason}`);
     return [];
   });
+  if (all.length === 0) {
+    console.log("[arxiv] feed 无新投稿（arxiv 周末 skipDays，工作日恢复；HF daily papers 已覆盖高分 arxiv 论文）");
+  }
   return all.slice(0, PER_SOURCE_LIMIT.arxiv);
 }

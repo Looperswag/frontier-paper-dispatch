@@ -17,7 +17,7 @@ npm test
 
 ## 接入完整流水线
 
-1. 复制 `.env.example` 为 `.env`，填入 `ANTHROPIC_API_KEY`、`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`RESEND_API_KEY`、`DIGEST_FROM`、`DIGEST_TO`。
+1. 复制 `.env.example` 为 `.env`，填入 `DEEPSEEK_API_KEY`、`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`RESEND_API_KEY`、`DIGEST_FROM`、`DIGEST_TO`。
 2. 在 Supabase SQL Editor 执行 `supabase/migrations/0001_init.sql`。
 3. 编辑 `config/profile.md`（你的角色 / 在做的项目 / 关注方向）——排名和影响都基于它。
 4. 写库不发信：`npm run ingest`；写库并发信：`npm run ingest:send`。

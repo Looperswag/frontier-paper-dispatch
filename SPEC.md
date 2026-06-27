@@ -9,8 +9,8 @@
 ## 数据模型
 `items`（去重键 source+external_id）/ `summaries` / `digests` / `annotations` / `chats` / `embeddings`(Phase5)。见 `supabase/migrations/0001_init.sql`。
 
-## 模型分层
-排名 `claude-sonnet-4-6`；概要+影响 `claude-opus-4-8`。嵌入（Phase5）Voyage AI。
+## 模型
+DeepSeek（OpenAI 兼容）：排名 + 概要 + 影响均用 `deepseek-chat`（DeepSeek-V3）。嵌入（Phase5）可用 DeepSeek 暂无的话走 Voyage/本地模型。
 
 ## 阶段
 - **Phase 1（本仓库当前范围）**：采集 + 排名 + 总结/影响 + 每日 digest + Resend 邮件 + launchd。
