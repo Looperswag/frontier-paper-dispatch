@@ -37,27 +37,22 @@ export function renderDigest(date: string, items: SummarizedItem[]): string {
   return head + body;
 }
 
-// 极简 markdown → 邮件 HTML（不引依赖）：转义后保留排版、加粗、链接化。
-function mdToHtml(md: string): string {
-  const esc = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const inner = esc
-    .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-  return (
-    `<div style="max-width:720px;margin:0 auto;padding:16px;` +
-    `font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;line-height:1.7;` +
-    `white-space:pre-wrap;color:#2b2b2b;background:#f4ecd8">${inner}</div>`
-  );
-}
-
-/** 经 Resend 发送每日邮件（动态 import，`--dry` 不触达）。 */
-export async function sendDigestEmail(subject: string, md: string): Promise<void> {
-  const key = process.env.RESEND_API_KEY;
-  const to = process.env.DIGEST_TO;
-  const from = process.env.DIGEST_FROM;
-  if (!key || !to || !from) throw new Error("缺少 RESEND_API_KEY / DIGEST_TO / DIGEST_FROM（见 .env.example）");
-  const { Resend } = await import("resend");
-  const resend = new Resend(key);
-  const { error } = await resend.emails.send({ from, to, subject, text: md, html: mdToHtml(md) });
-  if (error) throw new Error(`Resend 发送失败：${JSON.stringify(error)}`);
+/** 推送到微信（Server酱 / ServerChan）。markdown 直接作为 desp，无需 SDK。
+ *  自动适配两种 SendKey：老版 Turbo（SCT...）走 ftqq，Server酱³（sctp<uid>t...）走 ft07。 */
+export async function pushDigest(title: string, md: string): Promise<void> {
+  const key = process.env.SERVERCHAN_SENDKEY;
+  if (!key) throw new Error("缺少 SERVERCHAN_SENDKEY（见 .env.example）");
+  const uid = key.match(/^sctp(\d+)t/)?.[1];
+  const url = uid
+    ? `https://${uid}.push.ft07.com/send/${key}.send`
+    : `https://sctapi.ftqq.com/${key}.send`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ title: title.slice(0, 32), desp: md }),
+  });
+  const json = (await res.json().catch(() => ({}))) as { code?: number; message?: string };
+  if (!res.ok || (json.code !== undefined && json.code !== 0)) {
+    throw new Error(`Server酱 推送失败：HTTP ${res.status} ${JSON.stringify(json)}`);
+  }
 }

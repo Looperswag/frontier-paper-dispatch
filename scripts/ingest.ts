@@ -6,7 +6,7 @@ import { fetchX } from "./fetchers/x.ts";
 import { dedupe } from "../lib/normalize.ts";
 import { rankTop } from "./rank.ts";
 import { summarizeAll } from "./summarize.ts";
-import { renderDigest, sendDigestEmail } from "./digest.ts";
+import { renderDigest, pushDigest } from "./digest.ts";
 import { upsertItems, saveSummaries, saveDigest } from "../lib/supabase.ts";
 import type { NormalizedItem } from "../lib/types.ts";
 
@@ -68,10 +68,10 @@ async function main() {
   await saveDigest(today(), summarized, idByKey, md);
 
   if (send) {
-    await sendDigestEmail(`前沿论文情报台 · ${today()} · Top5`, md);
-    console.log("邮件已发送 ✉️");
+    await pushDigest(`前沿论文情报台 · ${today()} · Top5`, md);
+    console.log("已推送到微信 ✉️");
   } else {
-    console.log("（未加 --send，已写库未发信）");
+    console.log("（未加 --send，已写库未推送）");
   }
   console.log("\n=== 完成 ===");
 }

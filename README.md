@@ -1,6 +1,6 @@
 # 前沿论文情报台
 
-多源采集（arxiv / huggingface / github / 大厂 blog；X best-effort）→ Claude 依据你的画像排名 Top5、写概要与「对我的影响」→ 每晚十点邮件推送。复古牛皮纸阅读前台（批注 / chatbot / 导出）见 Phase 2+（`SPEC.md`）。
+多源采集（arxiv / huggingface / github / 大厂 blog；X best-effort）→ DeepSeek 依据你的画像排名 Top5、写概要与「对我的影响」→ 每晚十点推送到微信（Server酱）。复古牛皮纸阅读前台（批注 / chatbot / 导出）见 Phase 2+（`SPEC.md`）。
 
 ## 快速开始
 
@@ -17,7 +17,7 @@ npm test
 
 ## 接入完整流水线
 
-1. 复制 `.env.example` 为 `.env`，填入 `DEEPSEEK_API_KEY`、`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`RESEND_API_KEY`、`DIGEST_FROM`、`DIGEST_TO`。
+1. 复制 `.env.example` 为 `.env`，填入 `DEEPSEEK_API_KEY`、`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`SERVERCHAN_SENDKEY`（微信推送）。
 2. 在 Supabase SQL Editor 执行 `supabase/migrations/0001_init.sql`。
 3. 编辑 `config/profile.md`（你的角色 / 在做的项目 / 关注方向）——排名和影响都基于它。
 4. 写库不发信：`npm run ingest`；写库并发信：`npm run ingest:send`。

@@ -1,6 +1,6 @@
-// 只重发"已存在数据库里的最新 digest" —— 调邮件配置时免去重跑采集+DeepSeek。
+// 只重发"已存在数据库里的最新 digest" —— 调推送配置时免去重跑采集+DeepSeek。
 import { getClient } from "../lib/supabase.ts";
-import { sendDigestEmail } from "./digest.ts";
+import { pushDigest } from "./digest.ts";
 
 async function main() {
   const db = await getClient();
@@ -15,8 +15,8 @@ async function main() {
     console.log("数据库里还没有 digest，先跑一次 `npm run ingest`。");
     return;
   }
-  await sendDigestEmail(`前沿论文情报台 · ${data.digest_date} · Top5`, data.rendered_md);
-  console.log(`已重发 ${data.digest_date} 的 digest ✉️`);
+  await pushDigest(`前沿论文情报台 · ${data.digest_date} · Top5`, data.rendered_md);
+  console.log(`已重新推送 ${data.digest_date} 的 digest ✉️`);
 }
 
 main().catch((e) => {

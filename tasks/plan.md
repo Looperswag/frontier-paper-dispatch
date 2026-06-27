@@ -7,11 +7,11 @@
 - [x] fetchers：arxiv / huggingface / github / blogs（x 为 Phase5 桩）
 - [x] Claude 排名（scripts/rank.ts）
 - [x] Claude 概要 + 影响（scripts/summarize.ts）
-- [x] digest 渲染 + Resend 邮件（scripts/digest.ts）
+- [x] digest 渲染 + Server酱 微信推送（scripts/digest.ts）
 - [x] orchestrator + --dry / --send（scripts/ingest.ts）
 - [x] launchd 夜跑（launchd/com.frontierpapers.ingest.plist）
 - [x] 验证：`npm test` 通过 + `npm run ingest:dry` 实时抓到真实候选
-- [ ] 用户接入：填 .env（Anthropic/Supabase/Resend）→ 跑 Supabase 迁移 → `npm run ingest:send` 收信 → 装 launchd
+- [ ] 用户接入：填 .env（DeepSeek/Supabase/Server酱）→ 跑 Supabase 迁移 → `npm run ingest:send` 收到微信推送 → 装 launchd
 
 ## Phase 2 — 复古阅读 UI（next）
 - [ ] web/ 子应用：Next.js App Router 部署 Vercel，读 Supabase
