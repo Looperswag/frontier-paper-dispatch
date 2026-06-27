@@ -37,7 +37,7 @@ npm run dev          # 打开 http://localhost:3000
 三栏布局：左=归档列表，中=牛皮纸纸张阅读器（首页是每日电讯 Top5 封面，点进是单篇概要+影响），右 1/3=电报问询（Phase 3 接入）。
 要随处访问：`vercel deploy`，并在 Vercel 项目里配 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`DEEPSEEK_API_KEY` 三个环境变量。
 
-> ⚠️ **部署前必读（鉴权）**：本应用目前**无内置登录**，`/api/chat` 会调用 DeepSeek（花钱）。公开部署 = 任何人拿到 URL 都能看你的简报、烧你的 DeepSeek 额度。部署到 Vercel 时**务必开启 Deployment Protection**（Settings → Deployment Protection → Vercel Authentication 或 Password），平台层一键挡住全站含 API，零代码。完整的单用户登录（Supabase Auth 邮箱白名单）排在 Phase 5。本地 `npm run dev` 不对外暴露，无此风险。
+> ⚠️ **部署前必读（鉴权）**：本应用是**单用户设计、目前无内置登录**，所有写接口（`/api/chat` 调 DeepSeek 花钱、`/api/annotations` 增删批注）都未鉴权。公开部署 = 任何人拿到 URL 都能看你的简报、改/删你的批注、烧你的 DeepSeek 额度。部署到 Vercel 时**务必开启 Deployment Protection**（Settings → Deployment Protection → Vercel Authentication 或 Password），平台层一键挡住**全站含所有 API**，零代码。完整的应用内登录（Supabase Auth 邮箱白名单，给所有写操作加归属校验）排在 Phase 5。本地 `npm run dev` 不对外暴露，无此风险。
 
 ## 结构
 ```

@@ -36,3 +36,4 @@
 - [ ] X 源（agent-reach）+ FB 可选
 - [ ] Voyage 嵌入 + pgvector 跨库检索
 - [ ] 画像从批注/chat 自动精炼
+- [ ] 鉴权：Supabase Auth 邮箱白名单登录，给所有写接口（/api/chat、/api/annotations）加归属校验（部署前的临时方案=Vercel Deployment Protection）
