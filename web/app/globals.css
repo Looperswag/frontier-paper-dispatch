@@ -140,3 +140,45 @@ body {
 .msg.assistant::before { content: "答 "; color: var(--ink-soft); font-family: var(--font-typewriter); }
 
 .empty { color: var(--ink-soft); font-style: italic; text-align: center; margin-top: 80px; }
+
+/* ===== 批注层 ===== */
+.anno-svg { position: absolute; top: 0; left: 0; overflow: visible; }
+.sheet[data-tool="pen"], .sheet[data-tool="box"] { cursor: crosshair; }
+.sheet[data-tool="note"] { cursor: cell; }
+.sheet[data-tool="erase"] { cursor: not-allowed; }
+.sheet[data-tool="highlight"] { cursor: text; }
+
+.anno-note {
+  position: absolute; width: 22px; height: 22px; transform: translate(-4px, -22px);
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+  background: var(--paper); border: 1.5px solid var(--wax); box-shadow: 1px 2px 3px rgba(0,0,0,0.25);
+  cursor: pointer; z-index: 5;
+}
+
+/* 工具面板：底部居中悬浮 */
+.anno-toolbar {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 50;
+  background: var(--paper); border: 1px solid var(--wax);
+  box-shadow: 0 0 0 4px var(--paper), 0 0 0 5px var(--wax), 3px 5px 14px rgba(0,0,0,0.35);
+  padding: 7px 12px; font-family: var(--font-typewriter); font-size: 13px;
+}
+.anno-toolbar button, .anno-toolbar a {
+  font-family: var(--font-typewriter); font-size: 12px; color: var(--ink); text-decoration: none;
+  background: transparent; border: 1px solid transparent; padding: 3px 8px; cursor: pointer; border-radius: 2px;
+}
+.anno-toolbar button:hover, .anno-toolbar a:hover { border-color: var(--thread); }
+.anno-toolbar button.on { background: var(--wax); color: var(--paper); }
+.anno-toolbar .swatch { width: 18px; height: 18px; padding: 0; border: 1px solid var(--thread); }
+.anno-toolbar .swatch.on { outline: 2px solid var(--ink); outline-offset: 1px; }
+.anno-toolbar .tb-sep { width: 1px; align-self: stretch; background: var(--thread); margin: 2px 4px; }
+
+/* ===== 打印 / 导出 PDF：只留纸张 ===== */
+@media print {
+  .rail-left, .rail-right, .anno-toolbar { display: none !important; }
+  .app { display: block; height: auto; overflow: visible; }
+  .center { display: block; height: auto; overflow: visible; padding: 0; }
+  .sheet { width: 100%; box-shadow: none; padding: 24px 32px; }
+  .sheet::before { display: none; }
+  body { background: #fff; }
+}

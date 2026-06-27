@@ -101,3 +101,41 @@ export async function getChats(itemId: string): Promise<ChatMsg[]> {
 export async function saveChat(itemId: string, role: "user" | "assistant", content: string): Promise<void> {
   await db.from("chats").insert({ item_id: itemId, role, content });
 }
+
+export type AnnoType = "highlight" | "note" | "pen" | "box";
+export interface Annotation {
+  id: string;
+  type: AnnoType;
+  anchor: unknown; // highlight:{rects} pen:{points} box:{x,y,w,h} note:{x,y}
+  color: string;
+  body: string | null;
+}
+
+export async function getAnnotations(itemId: string): Promise<Annotation[]> {
+  const { data } = await db
+    .from("annotations")
+    .select("id, type, anchor, color, body")
+    .eq("item_id", itemId)
+    .order("created_at", { ascending: true });
+  return (data ?? []) as Annotation[];
+}
+
+export async function addAnnotation(
+  itemId: string,
+  type: AnnoType,
+  anchor: unknown,
+  color: string,
+  body: string | null,
+): Promise<Annotation> {
+  const { data, error } = await db
+    .from("annotations")
+    .insert({ item_id: itemId, type, anchor, color, body })
+    .select("id, type, anchor, color, body")
+    .single();
+  if (error) throw error;
+  return data as Annotation;
+}
+
+export async function deleteAnnotation(id: string): Promise<void> {
+  await db.from("annotations").delete().eq("id", id);
+}

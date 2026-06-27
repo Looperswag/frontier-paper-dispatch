@@ -26,9 +26,11 @@
 - [x] /api/chat：POST 流式 + GET 历史；两端落库 chats；切换论文自动载入历史
 - [x] 验证：curl 实测流式答案 paper-grounded（引用用户导购产品）+ 落库 + web tsc 干净
 
-## Phase 4 — 批注 + 导出
-- [ ] 高亮/便签（文本锚定）+ 画笔/框选（SVG 叠层，归一化坐标）
-- [ ] 导出 md / pdf（打印 CSS）/ word（docx）
+## Phase 4 — 批注 + 导出 ✅
+- [x] 统一坐标模型：高亮(选区client-rects)/便签(点)/画笔(点串)/框选(矩形) 全部纸张相对坐标，SVG 叠层
+- [x] 工具栏（选/高亮/便签/画笔/框选/擦 + 4 色）+ 持久化 /api/annotations(GET/POST/DELETE，含校验)
+- [x] 导出 md（/api/export）+ word（docx 库）+ pdf（打印 CSS + window.print）
+- [x] 验证：CRUD/非法 type 400/MD 内容/Word 真 docx/页面工具栏 全部 curl 实测通过
 
 ## Phase 5 — 增强
 - [ ] X 源（agent-reach）+ FB 可选

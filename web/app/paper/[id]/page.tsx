@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
-import { getPaper } from "@/lib/data";
+import { getPaper, getAnnotations } from "@/lib/data";
 import { renderMarkdown } from "@/lib/md";
+import AnnotatedReader from "@/components/AnnotatedReader";
 
 export const dynamic = "force-dynamic";
 
 export default async function PaperPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const paper = await getPaper(id);
+  const [paper, annos] = await Promise.all([getPaper(id), getAnnotations(id)]);
   if (!paper) notFound();
 
   const s = paper.summary;
@@ -16,7 +17,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
     .join(" · ");
 
   return (
-    <article className="sheet">
+    <AnnotatedReader paperId={id} initial={annos}>
       <div className="stamp">{paper.source.toUpperCase()}</div>
       <h1 className="headline">{paper.title}</h1>
       <div className="meta">
@@ -45,6 +46,6 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
       {s?.score != null ? (
         <div className="rationale">归档评分 {s.score}{s.rank ? ` · 当日排名 #${s.rank}` : ""}</div>
       ) : null}
-    </article>
+    </AnnotatedReader>
   );
 }
