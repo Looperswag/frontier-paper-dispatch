@@ -14,7 +14,8 @@ npx vercel link --yes
 
 echo "→ 把 3 个环境变量写入 production"
 for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY DEEPSEEK_API_KEY; do
-  v=$(grep -E "^$k=" .env.local | cut -d= -f2-)
+  # 取值并剥离行内注释(# ...)与首尾空白/引号——否则注释会被当成值的一部分发上去
+  v=$(grep -E "^$k=" .env.local | cut -d= -f2- | sed 's/[[:space:]]*#.*//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr -d '"')
   if [ -n "$v" ]; then
     npx vercel env rm "$k" production -y >/dev/null 2>&1 || true
     printf '%s' "$v" | npx vercel env add "$k" production >/dev/null
@@ -25,7 +26,7 @@ for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY DEEPSEEK_API_KEY; do
 done
 
 echo "→ 部署到生产"
-npx vercel --prod
+npx vercel --prod --yes
 
 cat <<'NOTE'
 
