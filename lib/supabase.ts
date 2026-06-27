@@ -54,6 +54,9 @@ export async function saveSummaries(
     rank: i.rank,
     model: "deepseek",
   }));
+  // 同日/重跑时替换这些 item 的旧摘要，避免每篇堆叠多条。
+  const ids = rows.map((r) => r.item_id).filter(Boolean) as string[];
+  if (ids.length) await db.from("summaries").delete().in("item_id", ids);
   const { error } = await db.from("summaries").insert(rows);
   if (error) throw error;
 }
