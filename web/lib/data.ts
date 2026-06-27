@@ -81,3 +81,23 @@ export async function listArchive(limit = 60): Promise<Paper[]> {
   }
   return out;
 }
+
+export interface ChatMsg {
+  role: "user" | "assistant";
+  content: string;
+}
+
+/** 某篇论文的历史对话（按时间正序）。 */
+export async function getChats(itemId: string): Promise<ChatMsg[]> {
+  const { data } = await db
+    .from("chats")
+    .select("role, content")
+    .eq("item_id", itemId)
+    .order("created_at", { ascending: true })
+    .limit(60);
+  return (data ?? []) as ChatMsg[];
+}
+
+export async function saveChat(itemId: string, role: "user" | "assistant", content: string): Promise<void> {
+  await db.from("chats").insert({ item_id: itemId, role, content });
+}

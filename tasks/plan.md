@@ -21,8 +21,10 @@
 - [x] 验证：dev 200、截图核对观感；md 经 sanitize-html 防 XSS
 - [ ] 用户接入：`cd web && npm run dev` 看本地；要随处访问再 `vercel deploy`（设 SUPABASE_URL/KEY 环境变量）
 
-## Phase 3 — chatbot
-- [ ] 右栏面板（已占位）：单篇满上下文问答，写 chats 表
+## Phase 3 — chatbot ✅
+- [x] 右栏电报面板：基于本篇（原文+概要+影响）满上下文问答，DeepSeek 流式输出
+- [x] /api/chat：POST 流式 + GET 历史；两端落库 chats；切换论文自动载入历史
+- [x] 验证：curl 实测流式答案 paper-grounded（引用用户导购产品）+ 落库 + web tsc 干净
 
 ## Phase 4 — 批注 + 导出
 - [ ] 高亮/便签（文本锚定）+ 画笔/框选（SVG 叠层，归一化坐标）

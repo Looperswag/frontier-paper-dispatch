@@ -133,4 +133,10 @@ body {
 }
 .tele-input input:disabled { opacity: .6; }
 
+.msg { margin: 0 0 10px; padding: 8px 11px; font-size: 13px; line-height: 1.65; white-space: pre-wrap; border: 1px solid var(--thread); }
+.msg.user { background: rgba(138, 51, 36, 0.09); border-color: var(--wax); }
+.msg.user::before { content: "问 "; color: var(--wax); font-family: var(--font-typewriter); }
+.msg.assistant { background: var(--paper); }
+.msg.assistant::before { content: "答 "; color: var(--ink-soft); font-family: var(--font-typewriter); }
+
 .empty { color: var(--ink-soft); font-style: italic; text-align: center; margin-top: 80px; }
