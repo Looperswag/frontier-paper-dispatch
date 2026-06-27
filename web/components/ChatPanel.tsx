@@ -34,13 +34,12 @@ export default function ChatPanel() {
     if (!text || !itemId || busy) return;
     setInput("");
     setBusy(true);
-    const history = msgs.slice(-8);
     setMsgs((m) => [...m, { role: "user", content: text }, { role: "assistant", content: "" }]);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId, message: text, history }),
+        body: JSON.stringify({ itemId, message: text }),
       });
       if (!res.body) throw new Error("no stream");
       const reader = res.body.getReader();
@@ -85,6 +84,7 @@ export default function ChatPanel() {
       <div className="tele-input">
         <input
           value={input}
+          maxLength={2000}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") send();

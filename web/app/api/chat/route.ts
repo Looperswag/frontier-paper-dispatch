@@ -1,8 +1,10 @@
-import { getPaper, getChats, saveChat, type ChatMsg } from "@/lib/data";
+import { getPaper, getChats, saveChat } from "@/lib/data";
 import { deepseek, CHAT_MODEL } from "@/lib/llm";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const MAX_MESSAGE = 2000; // 防超长 prompt 抬高成本
 
 // 历史对话
 export async function GET(req: Request) {
@@ -12,15 +14,21 @@ export async function GET(req: Request) {
 
 // 基于本篇论文的满上下文问答，流式返回纯文本；两端落库到 chats。
 export async function POST(req: Request) {
-  const { itemId, message, history } = (await req.json()) as {
-    itemId?: string;
-    message?: string;
-    history?: ChatMsg[];
-  };
+  let body: { itemId?: string; message?: string };
+  try {
+    body = (await req.json()) as { itemId?: string; message?: string };
+  } catch {
+    return new Response("bad request", { status: 400 });
+  }
+  const { itemId, message } = body;
   if (!itemId || !message?.trim()) return new Response("bad request", { status: 400 });
+  if (message.length > MAX_MESSAGE) return new Response("message too long", { status: 413 });
 
   const paper = await getPaper(itemId);
   if (!paper) return new Response("not found", { status: 404 });
+
+  // 历史从库里读，不信任客户端传入（防伪造/越权）。
+  const prior = await getChats(itemId);
 
   const ctx = [
     `标题：${paper.title}`,
@@ -45,10 +53,7 @@ export async function POST(req: Request) {
     max_tokens: 1500,
     messages: [
       { role: "system", content: system },
-      ...(history ?? [])
-        .filter((h) => h.role === "user" || h.role === "assistant")
-        .slice(-8)
-        .map((h) => ({ role: h.role, content: h.content })),
+      ...prior.slice(-8).map((h) => ({ role: h.role, content: h.content })),
       { role: "user", content: message },
     ],
   });
