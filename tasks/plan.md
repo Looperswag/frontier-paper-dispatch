@@ -13,12 +13,16 @@
 - [x] 验证：`npm test` 通过 + `npm run ingest:dry` 实时抓到真实候选
 - [ ] 用户接入：填 .env（DeepSeek/Supabase/Server酱）→ 跑 Supabase 迁移 → `npm run ingest:send` 收到微信推送 → 装 launchd
 
-## Phase 2 — 复古阅读 UI（next）
-- [ ] web/ 子应用：Next.js App Router 部署 Vercel，读 Supabase
-- [ ] 三栏布局 + 牛皮纸「纸张」阅读器（固定宽）+ 论文列表
+## Phase 2 — 复古阅读 UI ✅
+- [x] web/ 子应用：Next.js 16 App Router，读 Supabase（service role，仅服务端）
+- [x] 三栏布局（左 归档 / 中 牛皮纸纸张固定 720px / 右 1/3 电报问询）
+- [x] 牛皮纸阅读器：装订孔 + 双线边框 + 火漆红印章 + 打字机字体 + 霉斑做旧
+- [x] 首页 digest 封面（每日电讯 + Top5 目录）+ 单篇阅读页（概要/影响，markdown 已清洗）
+- [x] 验证：dev 200、截图核对观感；md 经 sanitize-html 防 XSS
+- [ ] 用户接入：`cd web && npm run dev` 看本地；要随处访问再 `vercel deploy`（设 SUPABASE_URL/KEY 环境变量）
 
 ## Phase 3 — chatbot
-- [ ] 右栏面板：单篇满上下文问答，写 chats 表
+- [ ] 右栏面板（已占位）：单篇满上下文问答，写 chats 表
 
 ## Phase 4 — 批注 + 导出
 - [ ] 高亮/便签（文本锚定）+ 画笔/框选（SVG 叠层，归一化坐标）

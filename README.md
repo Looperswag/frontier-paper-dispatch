@@ -27,6 +27,16 @@ npm test
    launchctl load ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
    ```
 
+## Web 前台（Phase 2，复古牛皮纸阅读 UI）
+```bash
+cd web
+npm install
+# web/.env.local 需含 SUPABASE_URL 与 SUPABASE_SERVICE_ROLE_KEY（可从 ../.env 复制）
+npm run dev          # 打开 http://localhost:3000
+```
+三栏布局：左=归档列表，中=牛皮纸纸张阅读器（首页是每日电讯 Top5 封面，点进是单篇概要+影响），右 1/3=电报问询（Phase 3 接入）。
+要随处访问：`vercel deploy`，并在 Vercel 项目里配 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY` 两个环境变量。
+
 ## 结构
 ```
 config/    sources.ts（源+权重）  profile.md（你的画像）
