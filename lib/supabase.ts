@@ -61,6 +61,32 @@ export async function saveSummaries(
   if (error) throw error;
 }
 
+/** 取用户的行为信号：带正文的批注（高亮引文/便签想法）+ 提问，用于画像精炼。 */
+export async function fetchSignals(): Promise<{
+  annotations: { type: string; body: string; title: string }[];
+  chats: { content: string; title: string }[];
+}> {
+  const db = await getClient();
+  const { data: a } = await db
+    .from("annotations")
+    .select("type, body, items(title)")
+    .not("body", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const { data: c } = await db
+    .from("chats")
+    .select("content, items(title)")
+    .eq("role", "user")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const title = (x: any): string =>
+    Array.isArray(x?.items) ? x.items[0]?.title ?? "" : x?.items?.title ?? "";
+  return {
+    annotations: (a ?? []).map((x: any) => ({ type: x.type, body: x.body, title: title(x) })),
+    chats: (c ?? []).map((x: any) => ({ content: x.content, title: title(x) })),
+  };
+}
+
 export async function saveDigest(
   digestDate: string,
   top5: SummarizedItem[],

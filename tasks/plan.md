@@ -37,5 +37,5 @@
 - [x] 鉴权（临时）：middleware Basic Auth 口令门（Vercel 免费版生产无官方保护）；正式 Supabase Auth 登录待办
 - [~] X 源：agent-reach 已装但 twitter 后端需 `pipx install twitter-cli` + 授权；x.ts 留好接入点与步骤，启用后 shell out twitter-cli
 - [ ] Voyage 嵌入 + pgvector 语义检索（需 embedding key）
-- [ ] 画像从批注/chat 自动精炼（DeepSeek 可做，待办）
+- [x] 画像从批注/chat 自动精炼：scripts/refine-profile.ts 读 annotations+chats → DeepSeek 精炼 → 默认产出 profile.suggested.md（--apply 才覆盖+备份）。`npm run refine` / `refine:apply`
 - [ ] 正式 Supabase Auth 登录 + 写接口归属校验

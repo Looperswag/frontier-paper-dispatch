@@ -48,5 +48,13 @@ supabase/  migrations/0001_init.sql
 launchd/   夜跑 plist
 ```
 
+## 画像自动精炼（越用越准）
+用你在阅读器里的**批注 + 提问**反推兴趣，让 DeepSeek 精炼 `config/profile.md`：
+```bash
+npm run refine         # 提议：生成 config/profile.suggested.md（不动 profile.md），自己审阅
+npm run refine:apply   # 满意后套用（原 profile.md 备份为 profile.md.bak）
+```
+保留你写明的角色/项目，只优化关注方向并追加「## 观察到的偏好（自动）」。信号太少会提示先多用几天。
+
 ## 配置源
 改 `config/sources.ts`：arxiv 分类、github 主题、blog RSS 列表、每源上限、回看天数。失效的 blog feed 会被静默跳过。

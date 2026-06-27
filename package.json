@@ -9,6 +9,8 @@
     "ingest": "node --env-file=.env --import tsx scripts/ingest.ts",
     "ingest:send": "node --env-file=.env --import tsx scripts/ingest.ts --send",
     "push:last": "node --env-file=.env --import tsx scripts/send-last.ts",
+    "refine": "node --env-file=.env --import tsx scripts/refine-profile.ts",
+    "refine:apply": "node --env-file=.env --import tsx scripts/refine-profile.ts --apply",
     "test": "node --import tsx --test lib/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
