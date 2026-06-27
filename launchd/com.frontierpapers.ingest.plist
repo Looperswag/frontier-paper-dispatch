@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 每晚 21:45 跑采集→排名→总结→发邮件。
+     安装：
+       cp launchd/com.frontierpapers.ingest.plist ~/Library/LaunchAgents/
+       launchctl load ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
+     卸载：launchctl unload ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
+     注意：把下面的 WorkingDirectory 改成本机绝对路径。 -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.frontierpapers.ingest</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "/Users/ali-jason/Desktop/AI 播客总结/平台" &amp;&amp; npm run ingest:send &gt;&gt; ingest.log 2&gt;&amp;1</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>21</integer>
+    <key>Minute</key><integer>45</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Users/ali-jason/Desktop/AI 播客总结/平台/ingest.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/ali-jason/Desktop/AI 播客总结/平台/ingest.log</string>
+</dict>
+</plist>
