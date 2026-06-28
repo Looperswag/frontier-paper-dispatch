@@ -210,3 +210,13 @@ body {
   .sheet::before { display: none; }
   body { background: #fff; }
 }
+
+/* 只读 demo 角标 */
+.demo-badge {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 100; text-decoration: none;
+  background: var(--wax); color: var(--paper);
+  font-family: var(--font-typewriter); font-size: 12px; letter-spacing: 1px;
+  padding: 5px 14px; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.demo-badge:hover { filter: brightness(1.12); }

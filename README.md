@@ -10,6 +10,8 @@
 ![DB](https://img.shields.io/badge/DB-Supabase-3ecf8e)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
 
+> 🔗 **在线体验（只读 Demo）**：**[frontier-paper-dispatch-demo.vercel.app](https://frontier-paper-dispatch-demo.vercel.app)** — 无需登录直接逛；问答/批注等写操作在 demo 里只读（也不会烧任何 API 额度）。
+
 ![hero](assets/hero.png)
 
 ---

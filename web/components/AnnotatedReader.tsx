@@ -15,6 +15,7 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: "box", label: "框选" },
   { id: "erase", label: "擦" },
 ];
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
 export default function AnnotatedReader({
   paperId,
@@ -45,6 +46,7 @@ export default function AnnotatedReader({
   }, []);
 
   async function create(type: AnnoType, anchor: any, body: string | null = null) {
+    if (DEMO) return; // 只读 demo 不写
     const res = await fetch("/api/annotations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -152,16 +154,22 @@ export default function AnnotatedReader({
   return (
     <>
       <div className="anno-toolbar">
-        {TOOLS.map((t) => (
-          <button key={t.id} className={tool === t.id ? "on" : ""} onClick={() => setTool(t.id)}>
-            {t.label}
-          </button>
-        ))}
-        <span className="tb-sep" />
-        {COLORS.map((c) => (
-          <button key={c} className={`swatch ${color === c ? "on" : ""}`} style={{ background: c }}
-            onClick={() => setColor(c)} aria-label={c} />
-        ))}
+        {DEMO ? (
+          <span style={{ color: "var(--ink-soft)", fontSize: 12 }}>🔒 只读 demo · 仅可导出</span>
+        ) : (
+          <>
+            {TOOLS.map((t) => (
+              <button key={t.id} className={tool === t.id ? "on" : ""} onClick={() => setTool(t.id)}>
+                {t.label}
+              </button>
+            ))}
+            <span className="tb-sep" />
+            {COLORS.map((c) => (
+              <button key={c} className={`swatch ${color === c ? "on" : ""}`} style={{ background: c }}
+                onClick={() => setColor(c)} aria-label={c} />
+            ))}
+          </>
+        )}
         <span className="tb-sep" />
         <a href={`/api/export/${paperId}?format=md`}>MD</a>
         <a href={`/api/export/${paperId}?format=docx`}>Word</a>

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
 // 右栏电报问询：基于当前打开的论文做满上下文二次问答（不做 RAG）。
 export default function ChatPanel() {
@@ -18,7 +19,7 @@ export default function ChatPanel() {
   // 切换论文时载入该篇历史
   useEffect(() => {
     setMsgs([]);
-    if (!itemId) return;
+    if (DEMO || !itemId) return; // demo 不载入任何历史问答
     fetch(`/api/chat?itemId=${itemId}`)
       .then((r) => r.json())
       .then((d) => setMsgs(d.chats ?? []))
@@ -31,7 +32,7 @@ export default function ChatPanel() {
 
   async function send() {
     const text = input.trim();
-    if (!text || !itemId || busy) return;
+    if (DEMO || !text || !itemId || busy) return;
     setInput("");
     setBusy(true);
     setMsgs((m) => [...m, { role: "user", content: text }, { role: "assistant", content: "" }]);
@@ -72,7 +73,11 @@ export default function ChatPanel() {
         {!itemId ? (
           <p className="tele-stub">打开任一篇论文后，就能基于它的原文 + 概要在这里追问。</p>
         ) : msgs.length === 0 ? (
-          <p className="tele-stub">基于这篇随便问——方法细节、能不能用进你的产品、和某篇的区别…</p>
+          <p className="tele-stub">
+            {DEMO
+              ? "🔒 只读 demo · 问答已关闭。自己部署后，可在这里基于本篇论文追问。"
+              : "基于这篇随便问——方法细节、能不能用进你的产品、和某篇的区别…"}
+          </p>
         ) : (
           msgs.map((m, i) => (
             <div key={i} className={`msg ${m.role}`}>
@@ -89,8 +94,10 @@ export default function ChatPanel() {
           onKeyDown={(e) => {
             if (e.key === "Enter") send();
           }}
-          disabled={!itemId || busy}
-          placeholder={itemId ? (busy ? "思考中…" : "问点什么…（回车发送）") : "先打开一篇论文"}
+          disabled={DEMO || !itemId || busy}
+          placeholder={
+            DEMO ? "只读 demo · 自部署后可问答" : itemId ? (busy ? "思考中…" : "问点什么…（回车发送）") : "先打开一篇论文"
+          }
         />
       </div>
     </>
