@@ -24,6 +24,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <div className="app">
           <aside className="rail-left">
+            {DEMO && (
+              <a
+                className="demo-badge"
+                href="https://github.com/Looperswag/frontier-paper-dispatch"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                🔒 只读 Demo · ⭐ 自部署 →
+              </a>
+            )}
             <PaperList />
           </aside>
           <main className="center">{children}</main>
@@ -31,16 +41,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ChatPanel />
           </aside>
         </div>
-        {DEMO && (
-          <a
-            className="demo-badge"
-            href="https://github.com/Looperswag/frontier-paper-dispatch"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            🔒 只读 Demo · 想要完整功能？⭐ 自部署 →
-          </a>
-        )}
       </body>
     </html>
   );
