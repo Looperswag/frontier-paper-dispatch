@@ -1,10 +1,19 @@
 import type { SummarizedItem } from "../lib/types.ts";
+import { signFeedback } from "../lib/sign.ts";
 
 const SHOW_SIGNALS = ["upvotes", "stars", "category", "publisher"];
 
+/** 每篇的 👍/👎 一键反馈链接（需 WEB_BASE_URL + FEEDBACK_SECRET）。 */
+function feedbackLinks(itemId: string | undefined): string {
+  const base = process.env.WEB_BASE_URL;
+  if (!base || !itemId || !process.env.FEEDBACK_SECRET) return "";
+  const link = (r: "up" | "down") => `${base}/api/feedback?i=${itemId}&r=${r}&t=${signFeedback(itemId, r)}`;
+  return `👍 [有用](${link("up")}) ・ 👎 [不相关](${link("down")})`;
+}
+
 /** 渲染每日简报 markdown（也是写进 digests.rendered_md 的内容）。 */
-export function renderDigest(date: string, items: SummarizedItem[]): string {
-  const head = `# 前沿论文情报台 · ${date}\n\n> 今日 Top ${items.length}（按对你的价值排序）。\n\n---\n\n`;
+export function renderDigest(date: string, items: SummarizedItem[], idByKey?: Map<string, string>): string {
+  const head = `# 前沿论文情报台 · ${date}\n\n> 今日 Top ${items.length}（按对你的价值排序）。读完顺手点每篇下的 👍/👎，明天更准。\n\n---\n\n`;
   const body = items
     .map((it) => {
       const sig = Object.entries(it.signals)
@@ -30,6 +39,7 @@ export function renderDigest(date: string, items: SummarizedItem[]): string {
         ``,
         `> 入选理由：${it.rationale}`,
         ``,
+        feedbackLinks(idByKey?.get(`${it.source}:${it.externalId}`)),
         `---`,
       ].join("\n");
     })

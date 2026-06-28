@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTop5 } from "@/lib/data";
+import FeedbackButtons from "@/components/FeedbackButtons";
 
 export const dynamic = "force-dynamic"; // 始终读最新 digest
 
@@ -29,11 +30,12 @@ export default async function Home() {
       <div className="prose">
         <ol>
           {papers.map((p) => (
-            <li key={p.id} style={{ marginBottom: 14 }}>
+            <li key={p.id} style={{ marginBottom: 16 }}>
               <Link href={`/paper/${p.id}`}>{p.title}</Link>
               <div style={{ fontSize: 12, color: "var(--ink-soft)" }}>
                 [{p.source}] {p.summary?.one_liner}
               </div>
+              <FeedbackButtons itemId={p.id} initialRating={p.rating} />
             </li>
           ))}
         </ol>

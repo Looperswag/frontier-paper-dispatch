@@ -11,6 +11,9 @@ export function middleware(req: NextRequest) {
     return new NextResponse("只读 demo：写操作已禁用 / read-only demo", { status: 403 });
   }
 
+  // 微信一键反馈：GET /api/feedback 由签名 token 自校验，免口令门。
+  if (req.method === "GET" && req.nextUrl.pathname === "/api/feedback") return NextResponse.next();
+
   const pw = process.env.APP_PASSWORD;
   if (!pw) return NextResponse.next();
 

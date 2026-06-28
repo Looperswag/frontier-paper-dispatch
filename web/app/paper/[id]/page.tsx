@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPaper, getAnnotations } from "@/lib/data";
 import { renderMarkdown } from "@/lib/md";
 import AnnotatedReader from "@/components/AnnotatedReader";
+import FeedbackButtons from "@/components/FeedbackButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,8 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
         {paper.authors?.length ? <>{paper.authors.slice(0, 6).join(", ")} · </> : null}
         <a href={paper.url} target="_blank" rel="noopener noreferrer">原文链接 ↗</a>
       </div>
+
+      <FeedbackButtons itemId={id} initialRating={paper.rating} />
 
       {s?.one_liner ? (
         <p className="prose" style={{ fontSize: 16 }}>

@@ -25,6 +25,7 @@ export interface Summary {
 }
 export interface Paper extends Item {
   summary?: Summary;
+  rating?: "up" | "down" | null;
 }
 
 async function attachSummaries(items: Item[]): Promise<Paper[]> {
@@ -35,6 +36,30 @@ async function attachSummaries(items: Item[]): Promise<Paper[]> {
     .in("item_id", items.map((i) => i.id));
   const byItem = new Map((sums ?? []).map((s) => [s.item_id, s as Summary & { item_id: string }]));
   return items.map((it) => ({ ...it, summary: byItem.get(it.id) }));
+}
+
+/** 回填每篇当前的反馈状态（👍/👎）。 */
+async function attachRatings(papers: Paper[]): Promise<Paper[]> {
+  if (!papers.length) return papers;
+  const { data } = await db
+    .from("feedback")
+    .select("item_id, rating")
+    .in("item_id", papers.map((p) => p.id));
+  const m = new Map((data ?? []).map((f: { item_id: string; rating: string }) => [f.item_id, f.rating]));
+  return papers.map((p) => ({ ...p, rating: (m.get(p.id) as "up" | "down" | undefined) ?? null }));
+}
+
+/** 记录/更新一篇的反馈（网页内打分用；一篇一条 upsert）。 */
+export async function saveFeedback(itemId: string, rating: "up" | "down", note?: string | null): Promise<void> {
+  await db.from("feedback").upsert(
+    {
+      item_id: itemId,
+      rating,
+      note: note ? note.slice(0, 500) : null,
+      digest_date: new Date().toISOString().slice(0, 10),
+    },
+    { onConflict: "item_id" },
+  );
 }
 
 /** 最新一期 digest 的 Top5（按 rank 排序）。 */
@@ -50,7 +75,7 @@ export async function getTop5(): Promise<{ date: string | null; papers: Paper[] 
   const papers = (await attachSummaries((items ?? []) as Item[])).sort(
     (a, b) => (a.summary?.rank ?? 99) - (b.summary?.rank ?? 99),
   );
-  return { date: digest.digest_date as string, papers };
+  return { date: digest.digest_date as string, papers: await attachRatings(papers) };
 }
 
 /** 单篇（含最新摘要）。 */
@@ -58,7 +83,8 @@ export async function getPaper(id: string): Promise<Paper | null> {
   const { data: it } = await db.from("items").select("*").eq("id", id).maybeSingle();
   if (!it) return null;
   const [p] = await attachSummaries([it as Item]);
-  return p;
+  const [withRating] = await attachRatings([p]);
+  return withRating;
 }
 
 /** 左栏归档：所有有摘要的论文，最近优先。 */

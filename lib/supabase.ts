@@ -87,6 +87,45 @@ export async function fetchSignals(): Promise<{
   };
 }
 
+/** 近 days 天的 Top5 反馈（含标题/来源/分类/理由），喂给排名与画像精炼。 */
+export async function fetchFeedback(
+  days = 21,
+): Promise<{ rating: string; note: string | null; title: string; source: string; category: string }[]> {
+  const db = await getClient();
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data } = await db
+    .from("feedback")
+    .select("rating, note, created_at, items(title, source, signals)")
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const item = (x: any) => (Array.isArray(x?.items) ? x.items[0] : x?.items) ?? {};
+  return (data ?? []).map((x: any) => {
+    const it = item(x);
+    return {
+      rating: x.rating,
+      note: x.note,
+      title: it.title ?? "",
+      source: it.source ?? "",
+      category: String(it.signals?.category ?? ""),
+    };
+  });
+}
+
+/** 把反馈数组拼成给 LLM 的简短摘要（喜欢/不喜欢两列）。 */
+export function feedbackSummary(
+  fb: { rating: string; note: string | null; title: string; source: string; category: string }[],
+): string {
+  if (!fb.length) return "";
+  const line = (f: (typeof fb)[number]) =>
+    `《${f.title}》[${f.source}${f.category ? "/" + f.category : ""}]${f.note ? `（${f.note}）` : ""}`;
+  const up = fb.filter((f) => f.rating === "up").map(line);
+  const down = fb.filter((f) => f.rating === "down").map(line);
+  return [up.length ? `👍 喜欢：${up.join("；")}` : "", down.length ? `👎 不喜欢：${down.join("；")}` : ""]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export async function saveDigest(
   digestDate: string,
   top5: SummarizedItem[],

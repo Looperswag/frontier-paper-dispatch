@@ -7,7 +7,7 @@ import { dedupe } from "../lib/normalize.ts";
 import { rankTop } from "./rank.ts";
 import { summarizeAll } from "./summarize.ts";
 import { renderDigest, pushDigest } from "./digest.ts";
-import { upsertItems, saveSummaries, saveDigest } from "../lib/supabase.ts";
+import { upsertItems, saveSummaries, saveDigest, fetchFeedback, feedbackSummary } from "../lib/supabase.ts";
 import type { NormalizedItem } from "../lib/types.ts";
 
 const FETCHERS = [
@@ -58,13 +58,15 @@ async function main() {
   const idByKey = await upsertItems(items);
   console.log(`已写入 Supabase：${idByKey.size} 条`);
 
-  const ranked = await rankTop(items, 5);
+  const fb = feedbackSummary(await fetchFeedback());
+  if (fb) console.log(`参考近期反馈：\n${fb}`);
+  const ranked = await rankTop(items, 5, fb);
   console.log(`排名 Top5：\n${ranked.map((r) => `  ${r.rank}. (${r.score}) ${r.title.slice(0, 50)}`).join("\n")}`);
 
   const summarized = await summarizeAll(ranked);
   await saveSummaries(summarized, idByKey);
 
-  const md = renderDigest(today(), summarized);
+  const md = renderDigest(today(), summarized, idByKey);
   await saveDigest(today(), summarized, idByKey, md);
 
   if (send) {

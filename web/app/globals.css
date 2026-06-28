@@ -226,3 +226,13 @@ body {
   position: static; transform: none; display: block; text-align: center;
   margin: 0 0 12px; padding: 6px 8px; box-shadow: none; font-size: 11px;
 }
+
+/* Top5 反馈打分 */
+.fb { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; font-size: 12px; }
+.fb-btn { background: var(--paper); border: 1px solid var(--thread); cursor: pointer; padding: 2px 9px; border-radius: 2px; font-size: 14px; line-height: 1.2; }
+.fb-btn.on { background: var(--wax); border-color: var(--wax); }
+.fb-link { background: transparent; border: 0; color: var(--wax); cursor: pointer; font-family: var(--font-typewriter); font-size: 12px; padding: 0; }
+.fb-link:disabled { color: var(--ink-soft); cursor: default; }
+.fb-saved { color: var(--ink-soft); font-style: italic; }
+.fb-note { display: inline-flex; gap: 6px; align-items: center; }
+.fb-note input { padding: 4px 8px; font-family: var(--font-serif-sc), serif; font-size: 12px; background: var(--paper); border: 1px solid var(--thread); color: var(--ink); width: 230px; max-width: 50vw; }
