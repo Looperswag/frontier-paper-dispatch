@@ -45,12 +45,18 @@ export async function completeJSON<T>(opts: {
   user: string;
   maxTokens?: number;
 }): Promise<T> {
-  const text = await complete({ ...opts, json: true });
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const raw = fenced ? fenced[1] : text.slice(text.search(/[[{]/));
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    throw new Error(`DeepSeek 未返回可解析 JSON：\n${text.slice(0, 500)}`);
+  // DeepSeek 偶尔返回非 JSON / 截断 → 重试至多 3 次，避免单次抖动让整条夜跑失败。
+  let last = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const text = await complete({ ...opts, json: true });
+    last = text;
+    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const raw = fenced ? fenced[1] : text.slice(text.search(/[[{]/));
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      /* 重试 */
+    }
   }
+  throw new Error(`DeepSeek 未返回可解析 JSON（重试 3 次后）：\n${last.slice(0, 500)}`);
 }
