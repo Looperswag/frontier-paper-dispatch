@@ -1684,8 +1684,11 @@ below come from the settled branch after the independent cross-module review.
 - Independent alert and authenticated OpenAlex canaries need their respective
   HTTPS Webhook and official API key.
 - Launchd acceptance needs the three jobs installed on the target Mac.
-- Publishing workflow-file changes needs the GitHub CLI credential refreshed
-  with `workflow` scope. No credential value belongs in this ledger.
+- GitHub publication is complete on branch
+  `codex/reliability-security-publish`; both workflow files are present and PR
+  [#2](https://github.com/Looperswag/frontier-paper-dispatch/pull/2) is open.
+  The scheduled ingest remains default-off until the repository variable is
+  explicitly enabled.
 
 ## 2026-07-15 final closure — run fencing, retries, and integrated review
 

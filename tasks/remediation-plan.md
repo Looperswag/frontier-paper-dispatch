@@ -24,7 +24,7 @@ the following activation gates are external rather than code defects:
 | Independent alert | BLOCKED | Configure an HTTPS `ALERT_WEBHOOK_URL` and prove one receipt without relying on ServerChan or SMTP. |
 | OpenAlex authenticated canary | BLOCKED | Add the official free `OPENALEX_API_KEY`; anonymous compatibility remains best-effort. |
 | macOS automation | BLOCKED | Complete `npm run doctor`, install the three LaunchAgents, and prove catch-up plus 22:00/23:00/15-minute behavior on the target Mac. |
-| GitHub publication | BLOCKED | Refresh the GitHub CLI credential with `workflow` scope, then push this branch and its workflow changes. |
+| GitHub publication | DONE | Published branch `codex/reliability-security-publish`, including both workflow files, and opened PR [#2](https://github.com/Looperswag/frontier-paper-dispatch/pull/2). |
 
 Public-source dry canaries and local deterministic tests are not blocked by
 these credentials. Roadmap rows that remain `TODO` below are intentionally not
