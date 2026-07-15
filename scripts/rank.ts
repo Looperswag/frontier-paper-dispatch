@@ -107,6 +107,10 @@ async function runLLMRanker(request: CandidateRankerRequest): Promise<RankingOut
   });
 }
 
+async function loadRankingProfile(): Promise<string> {
+  return readFile(PROFILE_PATH, "utf8");
+}
+
 /** 用 DeepSeek 依据画像对候选打分，返回 Top n（带分数与理由）。
  *  feedbackSummary：近期 Top5 反馈（👍/👎+理由），用于即时调整推荐方向。 */
 export async function rankTop(
@@ -115,12 +119,13 @@ export async function rankTop(
   feedbackSummary = "",
   now = new Date(),
   ranker: CandidateRanker = runLLMRanker,
+  profileLoader: () => Promise<string> = loadRankingProfile,
 ): Promise<RankedItem[]> {
   const count = Math.max(0, Math.min(5, Math.floor(n)));
   if (!items.length || count === 0) return [];
   const nowMs = now.getTime();
   if (!Number.isFinite(nowMs)) throw new TypeError("Invalid ranking clock");
-  const profile = await readFile(PROFILE_PATH, "utf8");
+  const profile = await profileLoader();
   const recalled = items
     .map((item, index) => ({ item, index, recallScore: deterministicScore(item, nowMs) }))
     .sort((a, b) => b.recallScore - a.recallScore || a.item.externalId.localeCompare(b.item.externalId) || a.index - b.index)

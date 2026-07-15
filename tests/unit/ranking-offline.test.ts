@@ -48,6 +48,7 @@ test("offline fixture exercises bounded recall, injected reranking, and diversit
       return { idx: candidate.idx, score: 100 - position, rationale: `fixture-${position}` };
     }),
   }));
+  const loadProfile = vi.fn(async () => "# Offline fixture profile\n");
 
   const ranked = await rankTop(
     [...items, ...distractors],
@@ -55,10 +56,12 @@ test("offline fixture exercises bounded recall, injected reranking, and diversit
     "",
     new Date(fixture.now),
     ranker,
+    loadProfile,
   );
   const rankedRelevance = ranked.map((item) => relevance.get(item.externalId) ?? 0);
 
   expect(ranker).toHaveBeenCalledOnce();
+  expect(loadProfile).toHaveBeenCalledOnce();
   expect(ranker.mock.calls[0][0].candidates).toHaveLength(100);
   expect(ranked).toHaveLength(5);
   expect(ranked.map((item) => item.rank)).toEqual([1, 2, 3, 4, 5]);
