@@ -7,8 +7,8 @@
   --ink-soft: #6d5c45;
   --wax: #8a3324; /* 火漆红 / sealing-wax red */
   --thread: #5b4a36;
-  --font-typewriter: "Special Elite", "Courier New", monospace;
-  --font-serif-sc: "Songti SC", "STSong", "Noto Serif SC", Georgia, serif;
+  --font-typewriter: "Courier New", "Noto Sans Mono CJK SC", monospace;
+  --font-serif-sc: "Songti SC", "STSong", "SimSun", Georgia, serif;
 }
 
 * { box-sizing: border-box; }
@@ -129,6 +129,17 @@ body {
 .sheet .meta { font-size: 12px; color: var(--ink-soft); border-bottom: 1px dashed var(--thread); padding-bottom: 12px; margin-bottom: 20px; }
 .sheet .meta a { color: var(--wax); word-break: break-all; }
 
+.login-shell { min-height: 100vh; display: grid; place-items: center; padding: 32px; }
+.login-sheet { width: min(520px, 100%); }
+.login-form { display: grid; gap: 12px; }
+.login-form label { font-family: var(--font-typewriter); font-size: 13px; }
+.login-form input { padding: 11px 12px; border: 1px solid var(--thread); background: var(--paper); color: var(--ink); font: inherit; }
+.login-form button { justify-self: start; padding: 8px 14px; border: 1px solid var(--thread); background: var(--wax); color: var(--paper); font: inherit; cursor: pointer; }
+.login-form button:disabled { cursor: wait; opacity: .65; }
+.login-form [role="status"] { margin: 0; color: var(--wax); font-size: 13px; }
+.logout-form { margin: 0 0 14px; }
+.logout-form button { border: 0; padding: 0; background: transparent; color: var(--ink-soft); font: 11px var(--font-typewriter); cursor: pointer; text-decoration: underline; }
+
 .section-label {
   font-family: var(--font-typewriter); font-size: 13px; letter-spacing: 3px;
   text-transform: uppercase; color: var(--wax); margin: 26px 0 8px;
@@ -209,22 +220,6 @@ body {
   .sheet { width: 100%; box-shadow: none; padding: 24px 32px; }
   .sheet::before { display: none; }
   body { background: #fff; }
-}
-
-/* 只读 demo 角标 */
-.demo-badge {
-  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-  z-index: 100; text-decoration: none;
-  background: var(--wax); color: var(--paper);
-  font-family: var(--font-typewriter); font-size: 12px; letter-spacing: 1px;
-  padding: 5px 14px; border-radius: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-.demo-badge:hover { filter: brightness(1.12); }
-
-/* demo 角标：改为左栏内嵌，不再 fixed 浮在牛皮纸上方 */
-.demo-badge {
-  position: static; transform: none; display: block; text-align: center;
-  margin: 0 0 12px; padding: 6px 8px; box-shadow: none; font-size: 11px;
 }
 
 /* Top5 反馈打分 */

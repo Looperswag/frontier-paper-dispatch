@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <title>Mixed arXiv Atom fixture</title>
+  <entry>
+    <id>http://arxiv.org/abs/2101.00001v1</id>
+    <updated>2026-07-13T06:00:00Z</updated>
+    <published>2026-07-13T05:00:00Z</published>
+    <title>Atom Language Fixture</title>
+    <summary>An Atom summary.</summary>
+    <author><name>Barbara Liskov</name></author>
+    <author><name>Donald Knuth</name></author>
+    <link href="http://arxiv.org/abs/2101.00001v1" rel="alternate" type="text/html" />
+    <arxiv:primary_category term="cs.CL" />
+    <category term="cs.CL" />
+    <category term="cs.AI" />
+  </entry>
+  <entry>
+    <id>oai:arXiv.org:math/0309136v1</id>
+    <updated>2026-07-13T07:00:00+00:00</updated>
+    <published>2026-07-13T07:00:00+00:00</published>
+    <title>Atom Legacy Fixture</title>
+    <summary>A legacy Atom summary.</summary>
+    <author><name>Edsger Dijkstra</name></author>
+    <link href="https://export.arxiv.org/abs/math/0309136v1" rel="alternate" />
+    <arxiv:primary_category term="cs.MA" />
+    <category term="cs.MA" />
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2607.08888v4</id>
+    <published>2026-07-13T08:00:00Z</published>
+    <title>Atom Replacement Fixture</title>
+    <summary>A replacement Atom summary.</summary>
+    <author><name>Test Author</name></author>
+    <link href="http://arxiv.org/abs/2607.08888v4" rel="alternate" />
+    <arxiv:primary_category term="cs.AI" />
+    <category term="cs.AI" />
+    <arxiv:announce_type>replace-cross</arxiv:announce_type>
+  </entry>
+</feed>

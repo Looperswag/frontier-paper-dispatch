@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { listArchive } from "@/lib/data";
+import { requireOwnerPage } from "@/lib/auth-boundary";
 
 // 左栏归档（async server component，直接读 Supabase）。
 export default async function PaperList() {
-  const papers = await listArchive();
+  const owner = await requireOwnerPage();
+  const papers = await listArchive(owner);
   return (
     <>
       <Link href="/" className="brand" style={{ textDecoration: "none", color: "inherit", display: "block" }}>

@@ -14,7 +14,7 @@ export function renderMarkdown(md: string): string {
   const raw = marked.parse(md ?? "", { async: false }) as string;
   return sanitizeHtml(raw, {
     allowedTags: ALLOWED_TAGS,
-    allowedAttributes: { a: ["href", "title"] },
+    allowedAttributes: { a: ["href", "title", "target", "rel"] },
     allowedSchemes: ["http", "https", "mailto"], // 去掉 javascript: 等
     transformTags: { a: sanitizeHtml.simpleTransform("a", { target: "_blank", rel: "noopener noreferrer" }) },
   });

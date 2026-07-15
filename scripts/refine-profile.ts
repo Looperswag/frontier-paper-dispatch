@@ -1,8 +1,18 @@
 // 画像 + 选源范围 自动精炼：从 反馈 / 批注 / 提问 用 DeepSeek 反推。
 // 默认只产出建议（profile.suggested.md + scope.suggested.md）；--apply 才覆盖 profile.md（并备份 .bak）。
 import { readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { MODELS, complete } from "../lib/llm.ts";
 import { fetchSignals, fetchFeedback, feedbackSummary } from "../lib/supabase.ts";
+import { loadRootConfig } from "../lib/runtime-config.ts";
+import { safeErrorMessage } from "../lib/safe-error.ts";
+import {
+  currentRuntimeEnvironment,
+  loadRuntimeEnvironment,
+  withRuntimeEnvironment,
+  type RuntimeEnvironment,
+} from "../lib/runtime-env.ts";
 
 const PROFILE = new URL("../config/profile.md", import.meta.url);
 const SUGGEST = new URL("../config/profile.suggested.md", import.meta.url);
@@ -15,8 +25,18 @@ function stripFence(s: string): string {
   return (m ? m[1] : s).trim() + "\n";
 }
 
-async function main() {
-  const apply = process.argv.includes("--apply");
+export async function runRefineCommand(
+  args: readonly string[] = process.argv,
+  injectedEnv?: RuntimeEnvironment,
+): Promise<void> {
+  const env = injectedEnv ?? loadRuntimeEnvironment();
+  await withRuntimeEnvironment(env, async () => {
+    loadRootConfig("refine", currentRuntimeEnvironment());
+    await refineProfile(args.includes("--apply"));
+  });
+}
+
+async function refineProfile(apply: boolean): Promise<void> {
   const current = await readFile(PROFILE, "utf8");
   const { annotations, chats } = await fetchSignals();
   const fb = await fetchFeedback();
@@ -40,7 +60,7 @@ async function main() {
     `# 当前画像\n${current}\n\n` +
     `# 我对每日 Top5 的反馈\n${fbText || "（无）"}\n\n` +
     `# 我的批注\n${annoLines || "（无）"}\n\n# 我的提问\n${chatLines || "（无）"}\n\n# 任务\n产出精炼后的完整画像 markdown。`;
-  const refined = stripFence(await complete({ model: MODELS.summarize, system: sys1, user: user1, maxTokens: 2000 }));
+  const refined = stripFence(await complete({ model: MODELS.summarize, policy: "root_refine", system: sys1, user: user1, maxTokens: 2000 }));
   await writeFile(SUGGEST, refined, "utf8");
   console.log(`已生成 config/profile.suggested.md（反馈 ${fb.length} + 批注 ${annotations.length} + 提问 ${chats.length}）`);
 
@@ -53,7 +73,7 @@ async function main() {
       `只针对我反复 👍/👎 的方向；没有明显信号就直说「暂无足够信号」。输出简短 markdown 清单，不要改写整个文件。`;
     const user2 =
       `# 当前源配置 sources.ts\n\`\`\`ts\n${sources}\n\`\`\`\n\n# 我的反馈\n${fbText}\n\n# 任务\n给出对 sources.ts 的选源调整建议。`;
-    const scope = stripFence(await complete({ model: MODELS.summarize, system: sys2, user: user2, maxTokens: 1200 }));
+    const scope = stripFence(await complete({ model: MODELS.summarize, policy: "root_refine", system: sys2, user: user2, maxTokens: 1200 }));
     await writeFile(SCOPE_SUGGEST, `# 选源范围建议（自动，供参考）\n\n${scope}`, "utf8");
     console.log("已生成 config/scope.suggested.md（审阅后手动改 config/sources.ts）");
   }
@@ -67,7 +87,20 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error("精炼失败：", e);
-  process.exit(1);
-});
+export async function runRefineEntry(
+  args: readonly string[] = process.argv,
+  baseEnv: RuntimeEnvironment = process.env,
+): Promise<void> {
+  let env: RuntimeEnvironment | undefined;
+  try {
+    env = loadRuntimeEnvironment({ baseEnv });
+    await runRefineCommand(args, env);
+  } catch (error) {
+    console.error(`refine failed: ${safeErrorMessage(error, env ?? baseEnv)}`);
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  void runRefineEntry();
+}

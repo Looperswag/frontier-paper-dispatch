@@ -1,4 +1,11 @@
-export type SourceId = "arxiv" | "huggingface" | "github" | "blog" | "x" | "facebook";
+export type SourceId = "arxiv" | "huggingface" | "github" | "blog" | "acl" | "openreview" | "openalex";
+
+export interface SourceObservation {
+  source: SourceId;
+  externalId: string;
+  url: string;
+  signals: Record<string, number | string>;
+}
 
 /** 各 fetcher 归一化后的统一形态。 */
 export interface NormalizedItem {
@@ -11,6 +18,7 @@ export interface NormalizedItem {
   content?: string; // 更长正文（如有）
   publishedAt: string; // ISO 8601
   signals: Record<string, number | string>; // 排名信号：upvotes / stars / category / sourceWeight ...
+  provenance?: readonly SourceObservation[];
   raw?: unknown;
 }
 
@@ -19,6 +27,9 @@ export interface RankedItem extends NormalizedItem {
   score: number; // 0–100
   rank: number; // 1 = 最高
   rationale: string;
+  /** True when the deterministic safety fallback was used for this item. */
+  degraded?: boolean;
+  degradedReason?: "llm_rank_failed" | "llm_summary_failed";
 }
 
 /** 总结后追加概要与影响。 */
