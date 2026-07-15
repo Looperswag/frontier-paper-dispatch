@@ -2,26 +2,61 @@
   "name": "frontier-papers",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0 <26"
+  },
   "type": "module",
-  "description": "前沿论文情报台 — 多源采集 → Claude 排名/总结 → 每晚邮件 Top5",
+  "description": "前沿论文情报台 — 多源采集、DeepSeek 个性化 Top 5、Supabase 归档与微信推送",
   "scripts": {
     "ingest:dry": "tsx scripts/ingest.ts --dry",
-    "ingest": "node --env-file=.env --import tsx scripts/ingest.ts",
-    "ingest:send": "node --env-file=.env --import tsx scripts/ingest.ts --send",
-    "push:last": "node --env-file=.env --import tsx scripts/send-last.ts",
-    "refine": "node --env-file=.env --import tsx scripts/refine-profile.ts",
-    "refine:apply": "node --env-file=.env --import tsx scripts/refine-profile.ts --apply",
-    "test": "node --import tsx --test lib/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "ingest": "node --import tsx scripts/ingest.ts",
+    "ingest:send": "node --import tsx scripts/ingest.ts --send",
+    "push:last": "node --import tsx scripts/send-last.ts",
+    "delivery:work": "node --import tsx scripts/delivery-worker.ts",
+    "refine": "node --import tsx scripts/refine-profile.ts",
+    "refine:apply": "node --import tsx scripts/refine-profile.ts --apply",
+    "config:migrate": "node --import tsx scripts/migrate-env.ts",
+    "preflight": "node --import tsx scripts/preflight.ts",
+    "doctor": "node --import tsx scripts/doctor.ts",
+    "state:backup": "node --import tsx scripts/state-backup.ts backup",
+    "state:restore": "node --import tsx scripts/state-backup.ts restore",
+    "cloud:materialize": "node --import tsx scripts/materialize-cloud-runtime.ts",
+    "db:start": "supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor",
+    "db:stop": "supabase stop --no-backup",
+    "db:reset": "supabase db reset --local",
+    "db:lint": "supabase db lint --local --schema public --level warning --fail-on error",
+    "db:test": "bash scripts/test-db.sh",
+    "test:idor": "bash scripts/test-idor.sh",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:unit": "vitest run lib tests/unit",
+    "test:contract": "vitest run tests/contracts",
+    "test:integration": "vitest run tests/integration --maxWorkers=1",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run test:coverage && npm --prefix web run verify",
+    "verify:full": "npm run verify && npm --prefix web run test:e2e"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "fast-xml-parser": "^5.9.3",
-    "openai": "^6.45.0"
+    "nodemailer": "^9.0.3",
+    "openai": "^6.45.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.0.1",
+    "@types/nodemailer": "^7.0.12",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.6.0",
+    "fast-check": "^4.9.0",
+    "msw": "^2.15.0",
+    "supabase": "2.109.1",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
+    "vitest": "^4.1.10"
   }
 }

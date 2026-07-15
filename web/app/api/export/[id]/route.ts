@@ -1,5 +1,9 @@
 import { getPaper, getAnnotations, type Annotation } from "@/lib/data";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun } from "docx";
+import { authorizeAPI } from "@/lib/auth-boundary";
+import { exactQuery } from "@/lib/api-request";
+import { apiError, hardenAPIResponse } from "@/lib/api-response";
+import { exportPathSchema, exportQuerySchema } from "@/lib/api-schemas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,28 +51,60 @@ async function buildDocx(md: string): Promise<Buffer> {
   return Packer.toBuffer(doc);
 }
 
+function databaseFailure(error: unknown): Response {
+  const code =
+    error !== null && typeof error === "object" && "code" in error
+      ? (error as { code?: unknown }).code
+      : undefined;
+  if (code === "DB_NOT_FOUND") return apiError(404, "NOT_FOUND");
+  if (code === "DB_OPERATION_FAILED") return apiError(503, "SERVICE_UNAVAILABLE");
+  return apiError(500, "INTERNAL_ERROR");
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const format = new URL(req.url).searchParams.get("format") ?? "md";
-  const paper = await getPaper(id);
-  if (!paper) return new Response("not found", { status: 404 });
-  const annos = await getAnnotations(id);
-  const md = buildMarkdown(paper, annos);
+  const authorization = await authorizeAPI();
+  if (!authorization.ok) return authorization.response;
+  const path = exportPathSchema.safeParse(await params);
+  const query = exportQuerySchema.safeParse(exactQuery(req, ["format"]));
+  if (!path.success || !query.success) return apiError(400, "INVALID_REQUEST");
+  const { id } = path.data;
+  const { format } = query.data;
+
+  let paper;
+  let annos;
+  try {
+    paper = await getPaper(authorization.owner, id);
+    if (!paper) return apiError(404, "NOT_FOUND");
+    annos = await getAnnotations(authorization.owner, id);
+  } catch (error) {
+    return databaseFailure(error);
+  }
 
   const safe = (paper.title || "paper").replace(/[^\w一-龥]+/g, "_").slice(0, 40);
   const fn = (ext: string) => `attachment; filename*=UTF-8''${encodeURIComponent(safe)}.${ext}`;
 
-  if (format === "docx") {
-    const buf = await buildDocx(md);
-    return new Response(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "Content-Disposition": fn("docx"),
-      },
-    });
+  try {
+    const md = buildMarkdown(paper, annos);
+    if (format === "docx") {
+      const buf = await buildDocx(md);
+      return hardenAPIResponse(
+        new Response(new Uint8Array(buf), {
+          headers: {
+            "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "Content-Disposition": fn("docx"),
+          },
+        }),
+      );
+    }
+    return hardenAPIResponse(
+      new Response(md, {
+        headers: {
+          "Content-Type": "text/markdown; charset=utf-8",
+          "Content-Disposition": fn("md"),
+        },
+      }),
+    );
+  } catch {
+    return apiError(500, "INTERNAL_ERROR");
   }
-  // 默认 markdown
-  return new Response(md, {
-    headers: { "Content-Type": "text/markdown; charset=utf-8", "Content-Disposition": fn("md") },
-  });
 }

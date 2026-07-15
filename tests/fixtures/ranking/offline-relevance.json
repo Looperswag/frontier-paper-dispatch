@@ -1,0 +1,18 @@
+{
+  "description": "Deterministic candidates, model output, and labels for exercising the real bounded recall/rerank/diversity path",
+  "now": "2026-07-15T00:00:00.000Z",
+  "items": [
+    { "source": "arxiv", "externalId": "ai-architecture", "url": "https://example.com/ai-architecture", "title": "AI Architecture", "authors": [], "abstract": "Agent architecture", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "cs.AI", "sourceWeight": 5 }, "relevance": 3 },
+    { "source": "arxiv", "externalId": "ai-evaluation", "url": "https://example.com/ai-evaluation", "title": "AI Evaluation", "authors": [], "abstract": "Agent evaluation", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "cs.AI", "sourceWeight": 5 }, "relevance": 3 },
+    { "source": "arxiv", "externalId": "ai-systems", "url": "https://example.com/ai-systems", "title": "AI Systems", "authors": [], "abstract": "Agent systems", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "cs.AI", "sourceWeight": 5 }, "relevance": 2 },
+    { "source": "arxiv", "externalId": "ai-survey", "url": "https://example.com/ai-survey", "title": "AI Survey", "authors": [], "abstract": "Agent survey", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "cs.AI", "sourceWeight": 5 }, "relevance": 1 },
+    { "source": "arxiv", "externalId": "ai-opinion", "url": "https://example.com/ai-opinion", "title": "AI Opinion", "authors": [], "abstract": "Agent opinion", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "cs.AI", "sourceWeight": 5 }, "relevance": 1 },
+    { "source": "github", "externalId": "agent-toolkit", "url": "https://example.com/agent-toolkit", "title": "Agent Toolkit", "authors": [], "abstract": "Practical agent toolkit", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "engineering", "sourceWeight": 4, "stars": 200 }, "relevance": 3 },
+    { "source": "blog", "externalId": "safety-practice", "url": "https://example.com/safety-practice", "title": "Safety Practice", "authors": [], "abstract": "Deployment lessons", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "safety", "sourceWeight": 4 }, "relevance": 2 },
+    { "source": "openalex", "externalId": "multimodal-agents", "url": "https://example.com/multimodal-agents", "title": "Multimodal Agents", "authors": [], "abstract": "Multimodal research", "publishedAt": "2026-07-14T00:00:00.000Z", "signals": { "category": "multimodal", "sourceWeight": 4 }, "relevance": 2 }
+  ],
+  "distractors": { "count": 105, "publishedAt": "2025-01-01T00:00:00.000Z" },
+  "modelOrder": ["ai-architecture", "ai-evaluation", "ai-systems", "ai-survey", "ai-opinion"],
+  "expectedPrecisionAt5": 1,
+  "expectedNdcgAt5": 0.9
+}

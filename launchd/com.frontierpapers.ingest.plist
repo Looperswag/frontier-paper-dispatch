@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 每晚 22:00 跑采集→排名→总结→推送微信（DeepSeek 耗时几分钟，推送约 22:02 到达）。
-     安装：
-       cp launchd/com.frontierpapers.ingest.plist ~/Library/LaunchAgents/
-       launchctl load ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
-     卸载：launchctl unload ~/Library/LaunchAgents/com.frontierpapers.ingest.plist
-     注意：把下面的 WorkingDirectory 改成本机绝对路径。 -->
+<!-- 模板由 scripts/install-cron.sh 写入绝对路径并加载，请勿手工复制。 -->
 <plist version="1.0">
 <dict>
   <key>Label</key>
@@ -12,9 +7,9 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/bin/zsh</string>
-    <string>-lc</string>
-    <string>cd "__PROJECT_DIR__" &amp;&amp; npm run ingest:send &gt;&gt; ingest.log 2&gt;&amp;1</string>
+    <string>__PROJECT_DIR__/scripts/run-scheduled.sh</string>
+    <string>ingest</string>
+    <string>__NODE_PATH__</string>
   </array>
 
   <key>StartCalendarInterval</key>
@@ -22,6 +17,17 @@
     <key>Hour</key><integer>22</integer>
     <key>Minute</key><integer>0</integer>
   </dict>
+
+  <!-- Retry an unsuccessful due schedule; a successful schedule token makes each wake a cheap no-op. -->
+  <key>StartInterval</key>
+  <integer>900</integer>
+
+  <!-- The runner de-duplicates this startup catch-up against its last successful schedule token. -->
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>Umask</key>
+  <integer>63</integer>
 
   <key>StandardOutPath</key>
   <string>__PROJECT_DIR__/ingest.log</string>

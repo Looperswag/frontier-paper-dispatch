@@ -1,84 +1,136 @@
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { fetchArxiv } from "./fetchers/arxiv.ts";
 import { fetchHuggingFace } from "./fetchers/huggingface.ts";
 import { fetchGitHub } from "./fetchers/github.ts";
 import { fetchBlogs } from "./fetchers/blogs.ts";
-import { fetchX } from "./fetchers/x.ts";
+import { fetchOpenAlex } from "./fetchers/openalex.ts";
+import { fetchACLAnthology } from "./fetchers/acl.ts";
 import { dedupe } from "../lib/normalize.ts";
 import { rankTop } from "./rank.ts";
 import { summarizeAll } from "./summarize.ts";
 import { renderDigest, pushDigest } from "./digest.ts";
-import { upsertItems, saveSummaries, saveDigest, fetchFeedback, feedbackSummary } from "../lib/supabase.ts";
-import type { NormalizedItem } from "../lib/types.ts";
+import { upsertItems, saveDigest, fetchFeedback, feedbackSummary, filterRecentlyDelivered } from "../lib/supabase.ts";
+import { runIngest } from "./ingest-runner.ts";
+import { loadRootConfig } from "../lib/runtime-config.ts";
+import { safeErrorMessage } from "../lib/safe-error.ts";
+import { shanghaiDateKey } from "../lib/time.ts";
+import {
+  finishPipelineRun,
+  heartbeatPipelineRun,
+  recordSourceRun,
+  startPipelineRun,
+} from "../lib/pipeline-run.ts";
+import {
+  currentRuntimeEnvironment,
+  loadRuntimeEnvironment,
+  withRuntimeEnvironment,
+  type RuntimeEnvironment,
+} from "../lib/runtime-env.ts";
 
-const FETCHERS = [
+export const ACTIVE_FETCHERS = [
   ["arxiv", fetchArxiv],
   ["huggingface", fetchHuggingFace],
   ["github", fetchGitHub],
   ["blog", fetchBlogs],
-  ["x", fetchX],
+  ["acl", fetchACLAnthology],
+  ["openalex", fetchOpenAlex],
 ] as const;
 
-const today = () => new Date().toISOString().slice(0, 10);
-// 朴素预览信号（dry 模式排序用，不调 LLM）。
-const naive = (i: NormalizedItem) => Number(i.signals.upvotes ?? 0) + Number(i.signals.stars ?? 0) / 50;
+const SCHEDULED_INGEST_HOUR = 22;
 
-async function collect(): Promise<NormalizedItem[]> {
-  const results = await Promise.allSettled(FETCHERS.map(([, fn]) => fn()));
-  const items: NormalizedItem[] = [];
-  results.forEach((r, i) => {
-    const name = FETCHERS[i][0];
-    if (r.status === "fulfilled") {
-      console.log(`[${name}] ${r.value.length} 条`);
-      items.push(...r.value);
-    } else {
-      console.warn(`[${name}] 失败：${r.reason?.message ?? r.reason}`);
+export function resolveIngestRunInstant(
+  args: readonly string[],
+  now: Date = new Date(),
+): Date {
+  const scheduledDateIndexes = args.flatMap((argument, index) =>
+    argument === "--scheduled-date" ? [index] : []
+  );
+  if (!scheduledDateIndexes.length) {
+    shanghaiDateKey(now);
+    return new Date(now);
+  }
+  const index = scheduledDateIndexes[0];
+  const value = args[index + 1];
+  if (
+    scheduledDateIndexes.length !== 1 ||
+    !args.includes("--send") ||
+    args.includes("--dry") ||
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(value)
+  ) {
+    throw new Error("Invalid scheduled ingest date");
+  }
+
+  const scheduled = new Date(`${value}T${SCHEDULED_INGEST_HOUR}:00:00+08:00`);
+  const today = shanghaiDateKey(now);
+  const yesterday = shanghaiDateKey(new Date(now.getTime() - 86_400_000));
+  if (
+    !Number.isFinite(scheduled.getTime()) ||
+    shanghaiDateKey(scheduled) !== value ||
+    (value !== today && value !== yesterday) ||
+    scheduled.getTime() > now.getTime()
+  ) {
+    throw new Error("Invalid scheduled ingest date");
+  }
+  return scheduled;
+}
+
+export async function runIngestCommand(
+  args: readonly string[] = process.argv,
+  injectedEnv?: RuntimeEnvironment,
+): Promise<void> {
+  const dry = args.includes("--dry");
+  const send = args.includes("--send");
+  const runInstant = resolveIngestRunInstant(args);
+  const env = injectedEnv ?? loadRuntimeEnvironment({ required: !dry });
+  await withRuntimeEnvironment(env, async () => {
+    const target = dry ? "dry" : send ? "ingest:send" : "ingest";
+    const config = loadRootConfig(target, currentRuntimeEnvironment());
+    if (config.deprecations.length) {
+      console.warn(`deprecated environment aliases: ${config.deprecations.join(", ")}`);
     }
+    await runIngest(
+      { dry, send },
+      {
+        clock: () => new Date(runInstant),
+        dedupe,
+        feedbackSummary,
+        fetchFeedback,
+        fetchers: ACTIVE_FETCHERS,
+        logger: console,
+        pushDigest,
+        rankTop,
+        renderDigest,
+        saveDigest,
+        summarizeAll,
+        upsertItems,
+        filterRecentlyDelivered,
+        pipeline: {
+          start: startPipelineRun,
+          heartbeat: heartbeatPipelineRun,
+          recordSource: recordSourceRun,
+          finish: finishPipelineRun,
+        },
+      },
+    );
   });
-  return dedupe(items);
 }
 
-async function main() {
-  const dry = process.argv.includes("--dry");
-  const send = process.argv.includes("--send");
-  console.log(`\n=== 采集开始（${today()}）${dry ? " [dry]" : ""} ===`);
-
-  const items = await collect();
-  console.log(`去重后候选：${items.length} 条`);
-
-  if (dry) {
-    const preview = [...items].sort((a, b) => naive(b) - naive(a)).slice(0, 15);
-    console.log(`\n按朴素信号预览前 15：`);
-    for (const it of preview) {
-      console.log(`  · [${it.source}] (${naive(it).toFixed(1)}) ${it.title.slice(0, 80)}`);
-    }
-    console.log(`\n[dry] 未写库、未排名、未发信。配好 .env 后用 \`npm run ingest\` / \`npm run ingest:send\`。`);
-    return;
+export async function runIngestEntry(
+  args: readonly string[] = process.argv,
+  baseEnv: RuntimeEnvironment = process.env,
+): Promise<void> {
+  let env: RuntimeEnvironment | undefined;
+  try {
+    env = loadRuntimeEnvironment({ baseEnv, required: !args.includes("--dry") });
+    await runIngestCommand(args, env);
+  } catch (error) {
+    console.error(`ingest failed: ${safeErrorMessage(error, env ?? baseEnv)}`);
+    process.exitCode = 1;
   }
-
-  const idByKey = await upsertItems(items);
-  console.log(`已写入 Supabase：${idByKey.size} 条`);
-
-  const fb = feedbackSummary(await fetchFeedback());
-  if (fb) console.log(`参考近期反馈：\n${fb}`);
-  const ranked = await rankTop(items, 5, fb);
-  console.log(`排名 Top5：\n${ranked.map((r) => `  ${r.rank}. (${r.score}) ${r.title.slice(0, 50)}`).join("\n")}`);
-
-  const summarized = await summarizeAll(ranked);
-  await saveSummaries(summarized, idByKey);
-
-  const md = renderDigest(today(), summarized, idByKey);
-  await saveDigest(today(), summarized, idByKey, md);
-
-  if (send) {
-    await pushDigest(`前沿论文情报台 · ${today()} · Top5`, md);
-    console.log("已推送到微信 ✉️");
-  } else {
-    console.log("（未加 --send，已写库未推送）");
-  }
-  console.log("\n=== 完成 ===");
 }
 
-main().catch((e) => {
-  console.error("ingest 失败：", e);
-  process.exit(1);
-});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  void runIngestEntry();
+}

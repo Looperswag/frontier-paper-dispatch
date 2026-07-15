@@ -2,12 +2,28 @@
   "name": "web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0 <26"
+  },
+  "description": "Frontier Paper Dispatch 单 owner 私有阅读端",
   "scripts": {
-    "dev": "next dev",
+    "predev": "npm --prefix .. run preflight -- --target web:development --web-env web/.env.local",
+    "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:idor": "playwright test --config playwright.idor.config.ts",
+    "test:e2e:ui": "playwright test --ui",
+    "verify": "npm run lint && npm run typecheck && npm run test:coverage",
+    "verify:full": "npm run verify && npm run test:e2e"
   },
   "dependencies": {
+    "@supabase/ssr": "0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "docx": "^9.7.1",
     "marked": "^18.0.5",
@@ -15,13 +31,29 @@
     "openai": "^6.45.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sanitize-html": "^2.17.5"
+    "sanitize-html": "^2.17.5",
+    "server-only": "^0.0.1",
+    "zod": "4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.1",
-    "typescript": "^5"
+    "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.10",
+    "jsdom": "^29.1.1",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "postcss": "8.5.16"
   }
 }

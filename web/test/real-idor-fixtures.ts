@@ -1,0 +1,10 @@
+export const REAL_IDOR_BASE_URL = "http://127.0.0.1:3200";
+export const OWNER_EMAIL = "owner.idor@example.com";
+export const NON_OWNER_EMAIL = "non-owner.idor@example.com";
+export const OWNER_PASSWORD = "Owner-IDOR-2026!Alpha";
+export const NON_OWNER_PASSWORD = "NonOwner-IDOR-2026!Beta";
+export const EXISTING_ITEM_ID = "11111111-1111-4111-8111-111111111111";
+export const EXISTING_ANNOTATION_ID = "55555555-5555-4555-8555-555555555555";
+export const REAL_IDOR_FEEDBACK_SECRET = `idor-feedback-${"f".repeat(32)}`;
+export const REAL_IDOR_RATE_LIMIT_SECRET = `idor-rate-${"r".repeat(32)}`;
+export const TRUSTED_TEST_IP = "203.0.113.42";

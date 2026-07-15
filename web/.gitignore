@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+/node_modules.nosync
+/node_modules.cloud-conflict.nosync
+/node_modules.cloud-old.nosync
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,6 +15,8 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # next.js
 /.next/
@@ -32,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Mixed arXiv fixture</title>
+    <item>
+      <title>Retrieval Fixture Paper</title>
+      <link>https://export.arxiv.org/abs/2401.01234v7?context=cs</link>
+      <description>arXiv:2401.01234v7 Announce Type: new Abstract: A retrieval fixture abstract.</description>
+      <guid isPermaLink="false">oai:arXiv.org:2401.01234v7</guid>
+      <category>cs.IR</category>
+      <category>cs.AI</category>
+      <pubDate>Mon, 13 Jul 2026 00:00:00 -0400</pubDate>
+      <arxiv:announce_type>new</arxiv:announce_type>
+      <dc:creator>Ada Lovelace, Alan Turing</dc:creator>
+    </item>
+    <item>
+      <title>Retrieval Fixture Paper Duplicate Version</title>
+      <link>https://arxiv.org/abs/2401.01234v8</link>
+      <description>arXiv:2401.01234v8 Announce Type: cross Abstract: A duplicate version.</description>
+      <guid isPermaLink="false">oai:arXiv.org:2401.01234v8</guid>
+      <category>cs.IR</category>
+      <pubDate>Mon, 13 Jul 2026 00:05:00 -0400</pubDate>
+      <arxiv:announce_type>cross</arxiv:announce_type>
+      <dc:creator>Ada Lovelace</dc:creator>
+    </item>
+    <item>
+      <title>Legacy Identifier Fixture</title>
+      <link>https://arxiv.org/pdf/hep-th/9901001v2.pdf?download=1</link>
+      <description>arXiv:hep-th/9901001v2 Announce Type: cross Abstract: A legacy identifier fixture.</description>
+      <guid isPermaLink="false">oai:arXiv.org:hep-th/9901001v2</guid>
+      <category>cs.MA</category>
+      <pubDate>2026-07-13T04:30:00Z</pubDate>
+      <arxiv:announce_type>cross</arxiv:announce_type>
+      <dc:creator>Grace Hopper</dc:creator>
+    </item>
+    <item>
+      <title>Exact Replacement</title>
+      <link>https://arxiv.org/abs/2607.09991v2</link>
+      <description>arXiv:2607.09991v2 Announce Type: replace Abstract: Must be excluded.</description>
+      <category>cs.AI</category>
+      <pubDate>Mon, 13 Jul 2026 00:00:00 -0400</pubDate>
+      <arxiv:announce_type>replace</arxiv:announce_type>
+    </item>
+    <item>
+      <title>Replacement Variant</title>
+      <link>https://arxiv.org/abs/2607.09992v3</link>
+      <description>arXiv:2607.09992v3 Announce Type: Replace-withdraw Abstract: Must also be excluded.</description>
+      <category>cs.LG</category>
+      <pubDate>Mon, 13 Jul 2026 00:00:00 -0400</pubDate>
+    </item>
+    <item>
+      <title>Invalid Date</title>
+      <link>https://arxiv.org/abs/2607.09993v1</link>
+      <description>arXiv:2607.09993v1 Announce Type: new Abstract: Invalid date.</description>
+      <category>cs.CV</category>
+      <pubDate>not-a-date</pubDate>
+      <arxiv:announce_type>new</arxiv:announce_type>
+    </item>
+    <item>
+      <title>Missing Date</title>
+      <link>https://arxiv.org/abs/2607.09994v1</link>
+      <description>arXiv:2607.09994v1 Announce Type: new Abstract: Missing date.</description>
+      <category>stat.ML</category>
+      <pubDate></pubDate>
+      <arxiv:announce_type>new</arxiv:announce_type>
+    </item>
+    <item>
+      <title>Invalid Identifier</title>
+      <link>https://example.com/not-an-arxiv-id</link>
+      <description>Announce Type: new Abstract: Invalid identifier.</description>
+      <category>cs.CL</category>
+      <pubDate>Mon, 13 Jul 2026 00:00:00 -0400</pubDate>
+      <arxiv:announce_type>new</arxiv:announce_type>
+    </item>
+  </channel>
+</rss>
