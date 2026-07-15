@@ -1,0 +1,56 @@
+name: Scheduled ingest (disabled by default)
+
+on:
+  schedule:
+    # GitHub cron is UTC. 14:15 UTC = 22:15 Asia/Shanghai.
+    - cron: "15 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-paper-dispatch-production-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    # A new repository has no variable, so both cron and manual runs stay disabled.
+    if: ${{ vars.ENABLE_CLOUD_INGEST == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Materialize validated private runtime files
+        run: npm run cloud:materialize
+        env:
+          ALERT_WEBHOOK_TOKEN: ${{ secrets.ALERT_WEBHOOK_TOKEN }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          FEEDBACK_SECRET: ${{ secrets.FEEDBACK_SECRET }}
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          PROFILE_MD: ${{ secrets.PROFILE_MD }}
+          SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          WEB_BASE_URL: ${{ secrets.WEB_BASE_URL }}
+      - run: npm run preflight -- --target ingest:send
+      - run: npm run ingest:send
+      - name: Remove private runtime files
+        if: always()
+        run: rm -f -- .env config/profile.md
